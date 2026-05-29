@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مولد الصور بالذكاء الاصطناعي</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;700;900&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #080810; color: #e2e8f0; font-family: 'Tajawal', sans-serif; min-height: 100vh; }
+.header { text-align: center; padding: 60px 20px 40px; }
+.header h1 { font-size: clamp(28px,5vw,48px); font-weight: 900; background: linear-gradient(135deg,#a78bfa,#ec4899,#f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
+.header p { color: #94a3b8; font-size: 15px; }
+.container { max-width: 700px; margin: 0 auto; padding: 0 20px; }
+.styles { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px; }
+.style-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #94a3b8; border-radius: 50px; padding: 8px 18px; font-size: 13px; cursor: pointer; font-family: 'Tajawal',sans-serif; transition: all 0.2s; }
+.style-btn.active { background: linear-gradient(135deg,#7c3aed,#a855f7); border-color: #a78bfa; color: #fff; }
+.input-box { background: rgba(255,255,255,0.03); border: 1px solid rgba(167,139,250,0.3); border-radius: 20px; padding: 4px 4px 4px 16px; display: flex; align-items: flex-end; gap: 10; box-shadow: 0 0 30px rgba(139,92,246,0.1); }
+textarea { flex: 1; background: transparent; border: none; outline: none; color: #e2e8f0; font-size: 15px; resize: none; min-height: 60px; padding: 14px 0; font-family: 'Tajawal',sans-serif; width: 100%; }
+.gen-btn { background: linear-gradient(135deg,#7c3aed,#a855f7); border: none; border-radius: 14px; color: #fff; padding: 14px 24px; font-size: 15px; cursor: pointer; font-family: 'Tajawal',sans-serif; font-weight: 700; margin-bottom: 4px; white-space: nowrap; }
+.gen-btn:disabled { background: rgba(124,58,237,0.3); cursor: not-allowed; }
+.results { max-width: 900px; margin: 40px auto; padding: 0 20px 60px; }
+.results h2 { text-align: center; color: #a78bfa; margin-bottom: 24px; font-size: 20px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(260px,1fr)); gap: 20px; }
+.card { background: rgba(255,255,255,0.03); border: 1px solid rgba(167,139,250,0.15); border-radius: 20px; overflow: hidden; transition: transform 0.2s, box-shadow 0.2s; }
+.card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(167,139,250,0.2); }
+.card-img { height: 200px; display: flex; align-items: center; justify-content: center; font-size: 72px; position: relative; }
+.card-style { position: absolute; bottom: 8px; right: 10px; background: rgba(0,0,0,0.5); color: #a78bfa; font-size: 11px; padding: 3px 8px; border-radius: 20px; }
+.card-body { padding: 14px 16px; }
+.card-body p { color: #e2e8f0; font-size: 13.5px; line-height: 1.6; margin-bottom: 10px; }
+.copy-btn { background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.3); color: #a78bfa; border-radius: 10px; padding: 5px 12px; font-size: 12px; cursor: pointer; font-family: 'Tajawal',sans-serif; float: left; }
+.loading { text-align: center; padding: 50px; color: #64748b; }
+.dots { display: flex; gap: 6px; justify-content: center; margin-bottom: 12px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: #a78bfa; animation: bounce 1.2s infinite; }
+.dot:nth-child(2) { animation-delay: 0.2s; }
+.dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes bounce { 0%,80%,100% { transform: scale(0.6); opacity: 0.4; } 40% { transform: scale(1); opacity: 1; } }
+.tip { margin-top: 30px; padding: 16px 20px; background: rgba(167,139,250,0.06); border: 1px solid rgba(167,139,250,0.15); border-radius: 14px; text-align: center; color: #94a3b8; font-size: 13px; }
+.tip span { color: #a78bfa; }
+.empty { text-align: center; padding: 60px 20px; color: #334155; }
+.empty div { font-size: 60px; margin-bottom: 16px; }
+</style>
+</head>
+<body>
+<div class="header">
+  <div style="font-size:48px;margin-bottom:12px">✨</div>
+  <h1>مولّد الصور بالذكاء الاصطناعي</h1>
+  <p>صف ما تتخيله وسيتحول لفن رقمي مذهل</p>
+</div>
+<div class="container">
+  <div class="styles">
+    <button class="style-btn active" onclick="selectStyle(this,'فوتوريالستيك')">📸 فوتوريالستيك</button>
+    <button class="style-btn" onclick="selectStyle(this,'أنمي')">🎌 أنمي</button>
+    <button class="style-btn" onclick="selectStyle(this,'لوحة زيتية')">🎨 لوحة زيتية</button>
+    <button class="style-btn" onclick="selectStyle(this,'فن رقمي')">💻 فن رقمي</button>
+    <button class="style-btn" onclick="selectStyle(this,'ألوان مائية')">🌊 ألوان مائية</button>
+    <button class="style-btn" onclick="selectStyle(this,'ثري دي')">🧊 ثري دي</button>
+  </div>
+  <div class="input-box">
+    <textarea id="prompt" placeholder="صف الصورة اللي تريدها... (مثال: مدينة خيالية تحت البحر)" rows="2" onkeydown="handleKey(event)"></textarea>
+    <button class="gen-btn" id="genBtn" onclick="generate()">🎨 ولّد</button>
+  </div>
+</div>
+<div id="output"></div>
+
+<script>
+let currentStyle = 'فوتوريالستيك';
+const gradients = [
+  'linear-gradient(135deg,#1a1a2e,#16213e,#0f3460)',
+  'linear-gradient(135deg,#2d1b33,#3d0a0a,#1a0a2e)',
+  'linear-gradient(135deg,#0a2e0a,#1a3a1a,#0d1f0d)',
+];
+
+function selectStyle(btn, style) {
+  document.querySelectorAll('.style-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentStyle = style;
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); generate(); }
+}
+
+async function generate() {
+  const prompt = document.getElementById('prompt').value.trim();
+  if (!prompt) return;
+  const btn = document.getElementById('genBtn');
+  btn.disabled = true;
+  document.getElementById('output').innerHTML = `<div class="loading"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><p>الذكاء الاصطناعي يبدع لك...</p></div>`;
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{role:'user',content:`أنت خبير في كتابة برومبتات توليد الصور. المستخدم يريد صورة: "${prompt}" بأسلوب: ${currentStyle}. أعطني JSON فقط بدون أي نص آخر: {"images":[{"description":"وصف عربي جميل","prompt":"English prompt","emoji":"emoji"},{"description":"...","prompt":"...","emoji":"..."},{"description":"...","prompt":"...","emoji":"..."}]}`}]
+      })
+    });
+    const data = await res.json();
+    const text = data.content.map(c=>c.text||'').join('');
+    const parsed = JSON.parse(text.replace(/```json|```/g,'').trim());
+    let html = `<div class="results"><h2>🖼️ الصور المقترحة</h2><div class="grid">`;
+    parsed.images.forEach((img,i)=>{
+      html += `<div class="card"><div class="card-img" style="background:${gradients[i%3]}"><span>${img.emoji}</span><div class="card-style">${currentStyle}</div></div><div class="card-body"><p>${img.description}</p><button class="copy-btn" onclick="copyPrompt(this,'${img.prompt.replace(/'/g,"\\'")}')">نسخ البرومبت</button></div></div>`;
+    });
+    html += `</div><div class="tip">💡 انسخ الـ prompt واستخدمه في <span>Midjourney أو DALL-E أو Stable Diffusion</span></div></div>`;
+    document.getElementById('output').innerHTML = html;
+  } catch(e) {
+    document.getElementById('output').innerHTML = `<div class="loading"><p style="color:#fca5a5">حصل خطأ، حاول تاني!</p></div>`;
+  }
+  btn.disabled = false;
+}
+
+function copyPrompt(btn, prompt) {
+  navigator.clipboard.writeText(prompt);
+  btn.textContent = '✓ تم النسخ';
+  btn.style.color = '#34d399';
+  setTimeout(()=>{ btn.textContent='نسخ البرومبت'; btn.style.color=''; }, 1500);
+}
+</script>
+</body>
+</html>
