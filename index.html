@@ -202,12 +202,12 @@
 <div class="main">
   <div class="input-card">
     <label>✦ اكتب وصف الصورة بالإنجليزي</label>
-    <textarea id="prompt" placeholder="Example: a red dragon flying over a city at night..."></textarea>
+    <textarea id="prompt" placeholder="Example: Egyptian man, handsome face, realistic, 8k..."></textarea>
     <div class="styles">
       <button class="style-btn active" onclick="setStyle(this, '')">عادي</button>
-      <button class="style-btn" onclick="setStyle(this, ', realistic, 4k, detailed')">واقعي</button>
-      <button class="style-btn" onclick="setStyle(this, ', digital art, highly detailed')">فن رقمي</button>
-      <button class="style-btn" onclick="setStyle(this, ', anime style, vibrant colors')">أنمي</button>
+      <button class="style-btn" onclick="setStyle(this, ', realistic photography, 4k, highly detailed')">واقعي</button>
+      <button class="style-btn" onclick="setStyle(this, ', digital art, highly detailed, vibrant')">فن رقمي</button>
+      <button class="style-btn" onclick="setStyle(this, ', anime style, vibrant colors, detailed')">أنمي</button>
       <button class="style-btn" onclick="setStyle(this, ', oil painting, artistic, masterpiece')">لوحة فنية</button>
     </div>
   </div>
@@ -218,7 +218,7 @@
 
   <div class="loading" id="loading">
     <div class="spinner"></div>
-    <p>جاري توليد صورتك... لحظة من فضلك</p>
+    <p>جاري توليد صورتك بجودة عالية... قد يستغرق 30-60 ثانية</p>
   </div>
 
   <div class="result-card" id="resultCard">
@@ -235,7 +235,7 @@
 
 <script>
 let styleExtra = '';
-let currentImageUrl = '';
+let currentBlob = null;
 
 function setStyle(btn, style) {
   document.querySelectorAll('.style-btn').forEach(b => b.classList.remove('active'));
@@ -244,11 +244,15 @@ function setStyle(btn, style) {
 }
 
 function downloadImage() {
+  if (!currentBlob) return;
+  const url = URL.createObjectURL(currentBlob);
   const a = document.createElement("a");
-  a.href = currentImageUrl;
+  a.href = url;
   a.download = "madnis-ai.png";
   a.click();
 }
+
+const TOKEN = "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";
 
 async function generateImage() {
   const promptText = document.getElementById("prompt").value.trim();
@@ -266,34 +270,45 @@ async function generateImage() {
   loading.style.display = "block";
   resultCard.style.display = "none";
 
-  const fullPrompt = encodeURIComponent(promptText + styleExtra);
-  const seed = Math.floor(Math.random() * 1000000);
-  const imageUrl = `https://image.pollinations.ai/prompt/${fullPrompt}?seed=${seed}&width=768&height=768&nologo=true`;
+  const fullPrompt = promptText + styleExtra;
 
   try {
-    const img = new Image();
-    img.onload = function() {
-      currentImageUrl = imageUrl;
-      resultImg.src = imageUrl;
-      resultCard.style.display = "block";
-      status.textContent = "✅ تم توليد الصورة بنجاح!";
-      loading.style.display = "none";
-      btn.disabled = false;
-      btn.textContent = "🎨 ولّد الصورة الآن";
-    };
-    img.onerror = function() {
-      status.textContent = "⚠️ حاول مرة أخرى!";
-      loading.style.display = "none";
-      btn.disabled = false;
-      btn.textContent = "🎨 ولّد الصورة الآن";
-    };
-    img.src = imageUrl;
-  } catch(e) {
-    status.textContent = "⚠️ حاول مرة أخرى!";
-    loading.style.display = "none";
-    btn.disabled = false;
-    btn.textContent = "🎨 ولّد الصورة الآن";
+    const response = await fetch(
+      "https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-dev",
+      {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${TOKEN}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          inputs: fullPrompt,
+          options: { wait_for_model: true }
+        })
+      }
+    );
+
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.error || "خطأ");
+    }
+
+    const blob = await response.blob();
+    if (blob.size < 1000) throw new Error("صورة فاضية");
+
+    currentBlob = blob;
+    const url = URL.createObjectURL(blob);
+    resultImg.src = url;
+    resultCard.style.display = "block";
+    status.textContent = "✅ تم توليد الصورة بنجاح!";
+
+  } catch (e) {
+    status.textContent = "⚠️ حاول مرة أخرى بعد دقيقة!";
   }
+
+  loading.style.display = "none";
+  btn.disabled = false;
+  btn.textContent = "🎨 ولّد الصورة الآن";
 }
 </script>
 </body>
