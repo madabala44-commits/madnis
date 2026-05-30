@@ -40,21 +40,18 @@
 </style>
 </head>
 <body>
-
 <header>
   <h1>MADNIS AI</h1>
   <span>BETA</span>
 </header>
-
 <div class="hero">
   <h2>ولّد صورك بالذكاء الاصطناعي</h2>
   <p>اكتب أي وصف تخيله وسيقوم الذكاء الاصطناعي بتحويله لصورة احترافية في ثوانٍ</p>
 </div>
-
 <div class="main">
   <div class="input-card">
     <label>✦ اكتب وصف الصورة بالإنجليزي</label>
-    <textarea id="prompt" placeholder="Example: Egyptian man, handsome face, realistic, 8k..."></textarea>
+    <textarea id="prompt" placeholder="Example: portrait of Egyptian man, sharp eyes, photorealistic, 8k..."></textarea>
     <div class="styles">
       <button class="style-btn active" onclick="setStyle(this, '')">عادي</button>
       <button class="style-btn" onclick="setStyle(this, ', realistic photography, 4k, highly detailed')">واقعي</button>
@@ -63,12 +60,11 @@
       <button class="style-btn" onclick="setStyle(this, ', oil painting, artistic, masterpiece')">لوحة فنية</button>
     </div>
   </div>
-
   <button class="gen-btn" onclick="generateImage()" id="btn">🎨 ولّد الصورة الآن</button>
   <div id="status"></div>
   <div class="loading" id="loading">
     <div class="spinner"></div>
-    <p id="loadingText">جاري توليد صورتك بجودة عالية...</p>
+    <p>جاري توليد صورتك... لحظة من فضلك</p>
   </div>
   <div class="result-card" id="resultCard">
     <img id="resultImg" src="" alt="صورة مولدة">
@@ -77,14 +73,12 @@
     </div>
   </div>
 </div>
-
 <footer>
   صُنع بـ <span>♥</span> بواسطة <span>Madnis AI</span> — مدعوم بالذكاء الاصطناعي
 </footer>
-
 <script>
 let styleExtra = '';
-let currentImgSrc = '';
+let currentImageUrl = '';
 
 function setStyle(btn, style) {
   document.querySelectorAll('.style-btn').forEach(b => b.classList.remove('active'));
@@ -94,12 +88,10 @@ function setStyle(btn, style) {
 
 function downloadImage() {
   const a = document.createElement("a");
-  a.href = currentImgSrc;
+  a.href = currentImageUrl;
   a.download = "madnis-ai.png";
   a.click();
 }
-
-const API_KEY = "ApmvMIelujjahZpCXrAuIA";
 
 async function generateImage() {
   const promptText = document.getElementById("prompt").value.trim();
@@ -110,7 +102,6 @@ async function generateImage() {
   const loading = document.getElementById("loading");
   const resultCard = document.getElementById("resultCard");
   const resultImg = document.getElementById("resultImg");
-  const loadingText = document.getElementById("loadingText");
 
   btn.disabled = true;
   btn.textContent = "⏳ جاري التوليد...";
@@ -118,61 +109,30 @@ async function generateImage() {
   loading.style.display = "block";
   resultCard.style.display = "none";
 
-  const fullPrompt = promptText + styleExtra + ", highly detailed, sharp focus, 8k, masterpiece";
+  const seed = Math.floor(Math.random() * 1000000);
+  const fullPrompt = encodeURIComponent(promptText + styleExtra + ", highly detailed, sharp focus, 8k, masterpiece");
+  const imageUrl = `https://image.pollinations.ai/prompt/${fullPrompt}?seed=${seed}&width=1024&height=1024&model=flux&nologo=true&enhance=true`;
 
   try {
-    // ابعت الطلب
-    const res = await fetch("https://stablehorde.net/api/v2/generate/async", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "apikey": API_KEY
-      },
-      body: JSON.stringify({
-        prompt: fullPrompt,
-        params: {
-          width: 768,
-          height: 768,
-          steps: 30,
-          cfg_scale: 7,
-          sampler_name: "k_euler_a"
-        },
-        models: ["stable_diffusion_xl"],
-        r2: true
-      })
-    });
-
-    const data = await res.json();
-    const jobId = data.id;
-
-    // انتظر النتيجة
-    for (let i = 0; i < 60; i++) {
-      await new Promise(r => setTimeout(r, 3000));
-      loadingText.textContent = `جاري التوليد... ${i * 3} ثانية`;
-
-      const check = await fetch(`https://stablehorde.net/api/v2/generate/check/${jobId}`);
-      const checkData = await check.json();
-
-      if (checkData.done) {
-        const statusRes = await fetch(`https://stablehorde.net/api/v2/generate/status/${jobId}`);
-        const statusData = await statusRes.json();
-        const imgUrl = statusData.generations[0].img;
-
-        currentImgSrc = imgUrl;
-        resultImg.src = imgUrl;
-        resultCard.style.display = "block";
-        status.textContent = "✅ تم توليد الصورة بنجاح!";
-        loading.style.display = "none";
-        btn.disabled = false;
-        btn.textContent = "🎨 ولّد الصورة الآن";
-        return;
-      }
-    }
-
-    throw new Error("timeout");
-
+    const img = new Image();
+    img.onload = function() {
+      currentImageUrl = imageUrl;
+      resultImg.src = imageUrl;
+      resultCard.style.display = "block";
+      status.textContent = "✅ تم توليد الصورة بنجاح!";
+      loading.style.display = "none";
+      btn.disabled = false;
+      btn.textContent = "🎨 ولّد الصورة الآن";
+    };
+    img.onerror = function() {
+      status.textContent = "⚠️ حاول مرة أخرى!";
+      loading.style.display = "none";
+      btn.disabled = false;
+      btn.textContent = "🎨 ولّد الصورة الآن";
+    };
+    img.src = imageUrl;
   } catch(e) {
-    status.textContent = "⚠️ حاول مرة أخرى بعد دقيقة!";
+    status.textContent = "⚠️ حاول مرة أخرى!";
     loading.style.display = "none";
     btn.disabled = false;
     btn.textContent = "🎨 ولّد الصورة الآن";
