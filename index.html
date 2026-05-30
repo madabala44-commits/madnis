@@ -3,17 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Madnis AI - مولد الصور</title>
+<title>Mada AI - مولد الصور</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { background: #000; color: #fff; font-family: 'Arial', sans-serif; min-height: 100vh; }
   header { border-bottom: 1px solid #1a1a1a; padding: 20px 30px; display: flex; align-items: center; justify-content: space-between; }
   header h1 { font-size: 1.8em; color: #ff2222; letter-spacing: 3px; text-shadow: 0 0 15px rgba(255,0,0,0.5); }
   header span { background: #ff2222; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.75em; font-weight: bold; }
-  .hero { text-align: center; padding: 60px 20px 40px; background: radial-gradient(ellipse at top, #1a0000 0%, #000 60%); }
-  .hero h2 { font-size: 2.5em; margin-bottom: 15px; background: linear-gradient(90deg, #ff2222, #ff6666, #ff2222); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-  .hero p { color: #888; font-size: 1.1em; max-width: 500px; margin: 0 auto; line-height: 1.6; }
-  .main { max-width: 700px; margin: 0 auto; padding: 40px 20px; }
+  .hero { text-align: center; padding: 50px 20px 30px; background: radial-gradient(ellipse at top, #1a0000 0%, #000 60%); }
+  .hero h2 { font-size: 2.2em; margin-bottom: 15px; background: linear-gradient(90deg, #ff2222, #ff6666, #ff2222); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .hero p { color: #888; font-size: 1em; max-width: 500px; margin: 0 auto; line-height: 1.6; }
+  
+  /* Tabs */
+  .tabs { display: flex; max-width: 700px; margin: 30px auto 0; padding: 0 20px; gap: 10px; }
+  .tab { flex: 1; padding: 12px; text-align: center; border-radius: 12px; border: 1px solid #333; background: #111; color: #888; cursor: pointer; font-size: 1em; transition: all 0.3s; }
+  .tab.active { border-color: #ff2222; color: #ff2222; background: rgba(255,34,34,0.1); }
+
+  .main { max-width: 700px; margin: 0 auto; padding: 30px 20px; }
+  .section { display: none; }
+  .section.active { display: block; }
+
   .input-card { background: #0d0d0d; border: 1px solid #2a2a2a; border-radius: 16px; padding: 24px; margin-bottom: 20px; }
   .input-card label { display: block; color: #ff4444; font-size: 0.9em; margin-bottom: 10px; font-weight: bold; letter-spacing: 1px; }
   textarea { width: 100%; padding: 15px; border-radius: 10px; border: 1px solid #333; background: #111; color: #fff; font-size: 1em; resize: none; height: 110px; outline: none; transition: border 0.3s; line-height: 1.6; }
@@ -22,6 +31,15 @@
   .styles { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
   .style-btn { padding: 8px 16px; border-radius: 20px; border: 1px solid #333; background: #111; color: #888; font-size: 0.85em; cursor: pointer; transition: all 0.3s; }
   .style-btn:hover, .style-btn.active { border-color: #ff2222; color: #ff2222; background: rgba(255,34,34,0.1); }
+  
+  /* Upload */
+  .upload-area { border: 2px dashed #333; border-radius: 12px; padding: 30px; text-align: center; cursor: pointer; transition: all 0.3s; margin-bottom: 15px; }
+  .upload-area:hover { border-color: #ff2222; }
+  .upload-area p { color: #555; margin-top: 10px; }
+  .upload-area span { font-size: 2.5em; }
+  #uploadedImg { width: 100%; border-radius: 12px; margin-bottom: 15px; display: none; }
+  #fileInput { display: none; }
+
   .gen-btn { width: 100%; padding: 18px; background: linear-gradient(135deg, #ff2222, #cc0000); border: none; border-radius: 12px; color: white; font-size: 1.15em; font-weight: bold; cursor: pointer; transition: all 0.3s; letter-spacing: 1px; box-shadow: 0 4px 20px rgba(255,0,0,0.3); }
   .gen-btn:hover { transform: translateY(-2px); }
   .gen-btn:disabled { background: #330000; box-shadow: none; transform: none; cursor: not-allowed; }
@@ -34,51 +52,106 @@
   .result-actions { padding: 16px 20px; border-top: 1px solid #1a1a1a; }
   .download-btn { width: 100%; padding: 12px; background: transparent; border: 1px solid #ff2222; border-radius: 10px; color: #ff2222; font-size: 0.95em; cursor: pointer; font-weight: bold; transition: all 0.3s; }
   .download-btn:hover { background: rgba(255,34,34,0.1); }
-  #status { text-align: center; padding: 15px; font-size: 0.95em; color: #ff4444; }
+  #status, #status2 { text-align: center; padding: 15px; font-size: 0.95em; color: #ff4444; }
   footer { text-align: center; padding: 30px; color: #333; font-size: 0.85em; border-top: 1px solid #111; margin-top: 60px; }
   footer span { color: #ff2222; }
 </style>
 </head>
 <body>
+
 <header>
-  <h1>MADNIS AI</h1>
+  <h1>MADA AI</h1>
   <span>BETA</span>
 </header>
+
 <div class="hero">
-  <h2>ولّد صورك بالذكاء الاصطناعي</h2>
-  <p>اكتب أي وصف تخيله وسيقوم الذكاء الاصطناعي بتحويله لصورة احترافية في ثوانٍ</p>
+  <h2>الذكاء الاصطناعي في خدمتك</h2>
+  <p>ولّد صور جديدة أو عدّل على صورك الحالية بالذكاء الاصطناعي</p>
 </div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('generate')">🎨 توليد صورة</div>
+  <div class="tab" onclick="switchTab('edit')">✏️ تعديل صورة</div>
+</div>
+
 <div class="main">
-  <div class="input-card">
-    <label>✦ اكتب وصف الصورة بالإنجليزي</label>
-    <textarea id="prompt" placeholder="Example: portrait of Egyptian man, sharp eyes, photorealistic, 8k..."></textarea>
-    <div class="styles">
-      <button class="style-btn active" onclick="setStyle(this, '')">عادي</button>
-      <button class="style-btn" onclick="setStyle(this, ', realistic photography, 4k, highly detailed')">واقعي</button>
-      <button class="style-btn" onclick="setStyle(this, ', digital art, highly detailed, vibrant')">فن رقمي</button>
-      <button class="style-btn" onclick="setStyle(this, ', anime style, vibrant colors, detailed')">أنمي</button>
-      <button class="style-btn" onclick="setStyle(this, ', oil painting, artistic, masterpiece')">لوحة فنية</button>
+
+  <!-- قسم التوليد -->
+  <div class="section active" id="generateSection">
+    <div class="input-card">
+      <label>✦ اكتب وصف الصورة بالإنجليزي</label>
+      <textarea id="prompt" placeholder="Example: handsome Arab man, brown skin, dark eyes, photorealistic, 8k..."></textarea>
+      <div class="styles">
+        <button class="style-btn active" onclick="setStyle(this, '')">عادي</button>
+        <button class="style-btn" onclick="setStyle(this, ', realistic photography, 4k, highly detailed')">واقعي</button>
+        <button class="style-btn" onclick="setStyle(this, ', digital art, highly detailed, vibrant')">فن رقمي</button>
+        <button class="style-btn" onclick="setStyle(this, ', anime style, vibrant colors, detailed')">أنمي</button>
+        <button class="style-btn" onclick="setStyle(this, ', oil painting, artistic, masterpiece')">لوحة فنية</button>
+      </div>
+    </div>
+    <button class="gen-btn" onclick="generateImage()" id="btn">🎨 ولّد الصورة الآن</button>
+    <div id="status"></div>
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <p>جاري توليد صورتك... لحظة من فضلك</p>
+    </div>
+    <div class="result-card" id="resultCard">
+      <img id="resultImg" src="" alt="صورة مولدة">
+      <div class="result-actions">
+        <button class="download-btn" onclick="downloadImage()">⬇️ تحميل الصورة</button>
+      </div>
     </div>
   </div>
-  <button class="gen-btn" onclick="generateImage()" id="btn">🎨 ولّد الصورة الآن</button>
-  <div id="status"></div>
-  <div class="loading" id="loading">
-    <div class="spinner"></div>
-    <p>جاري توليد صورتك... لحظة من فضلك</p>
-  </div>
-  <div class="result-card" id="resultCard">
-    <img id="resultImg" src="" alt="صورة مولدة">
-    <div class="result-actions">
-      <button class="download-btn" onclick="downloadImage()">⬇️ تحميل الصورة</button>
+
+  <!-- قسم التعديل -->
+  <div class="section" id="editSection">
+    <div class="input-card">
+      <label>✦ ارفع الصورة اللي عايز تعدل عليها</label>
+      <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+        <span>📁</span>
+        <p>اضغط هنا لرفع الصورة</p>
+      </div>
+      <input type="file" id="fileInput" accept="image/*" onchange="previewImage(event)">
+      <img id="uploadedImg" src="" alt="صورة مرفوعة">
+      <label style="margin-top:15px">✦ اكتب التعديل المطلوب بالإنجليزي</label>
+      <textarea id="editPrompt" placeholder="Example: make it anime style, add sunset background, make it look vintage..."></textarea>
+    </div>
+    <button class="gen-btn" onclick="editImage()" id="btn2">✏️ عدّل الصورة الآن</button>
+    <div id="status2"></div>
+    <div class="loading" id="loading2">
+      <div class="spinner"></div>
+      <p>جاري تعديل صورتك... لحظة من فضلك</p>
+    </div>
+    <div class="result-card" id="resultCard2">
+      <img id="resultImg2" src="" alt="صورة معدلة">
+      <div class="result-actions">
+        <button class="download-btn" onclick="downloadImage2()">⬇️ تحميل الصورة المعدلة</button>
+      </div>
     </div>
   </div>
+
 </div>
+
 <footer>
-  صُنع بـ <span>♥</span> بواسطة <span>Madnis AI</span> — مدعوم بالذكاء الاصطناعي
+  صُنع بـ <span>♥</span> بواسطة <span>Mada AI</span> — مدعوم بالذكاء الاصطناعي
 </footer>
+
 <script>
 let styleExtra = '';
 let currentImageUrl = '';
+let currentImageUrl2 = '';
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  if (tab === 'generate') {
+    document.querySelectorAll('.tab')[0].classList.add('active');
+    document.getElementById('generateSection').classList.add('active');
+  } else {
+    document.querySelectorAll('.tab')[1].classList.add('active');
+    document.getElementById('editSection').classList.add('active');
+  }
+}
 
 function setStyle(btn, style) {
   document.querySelectorAll('.style-btn').forEach(b => b.classList.remove('active'));
@@ -86,10 +159,29 @@ function setStyle(btn, style) {
   styleExtra = style;
 }
 
+function previewImage(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = document.getElementById('uploadedImg');
+    img.src = e.target.result;
+    img.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
 function downloadImage() {
   const a = document.createElement("a");
   a.href = currentImageUrl;
-  a.download = "madnis-ai.png";
+  a.download = "mada-ai.png";
+  a.click();
+}
+
+function downloadImage2() {
+  const a = document.createElement("a");
+  a.href = currentImageUrl2;
+  a.download = "mada-ai-edited.png";
   a.click();
 }
 
@@ -113,30 +205,67 @@ async function generateImage() {
   const fullPrompt = encodeURIComponent(promptText + styleExtra + ", highly detailed, sharp focus, 8k, masterpiece");
   const imageUrl = `https://image.pollinations.ai/prompt/${fullPrompt}?seed=${seed}&width=1024&height=1024&model=flux&nologo=true&enhance=true`;
 
-  try {
-    const img = new Image();
-    img.onload = function() {
-      currentImageUrl = imageUrl;
-      resultImg.src = imageUrl;
-      resultCard.style.display = "block";
-      status.textContent = "✅ تم توليد الصورة بنجاح!";
-      loading.style.display = "none";
-      btn.disabled = false;
-      btn.textContent = "🎨 ولّد الصورة الآن";
-    };
-    img.onerror = function() {
-      status.textContent = "⚠️ حاول مرة أخرى!";
-      loading.style.display = "none";
-      btn.disabled = false;
-      btn.textContent = "🎨 ولّد الصورة الآن";
-    };
-    img.src = imageUrl;
-  } catch(e) {
+  const img = new Image();
+  img.onload = function() {
+    currentImageUrl = imageUrl;
+    resultImg.src = imageUrl;
+    resultCard.style.display = "block";
+    status.textContent = "✅ تم توليد الصورة بنجاح!";
+    loading.style.display = "none";
+    btn.disabled = false;
+    btn.textContent = "🎨 ولّد الصورة الآن";
+  };
+  img.onerror = function() {
     status.textContent = "⚠️ حاول مرة أخرى!";
     loading.style.display = "none";
     btn.disabled = false;
     btn.textContent = "🎨 ولّد الصورة الآن";
+  };
+  img.src = imageUrl;
+}
+
+async function editImage() {
+  const editPrompt = document.getElementById("editPrompt").value.trim();
+  const uploadedImg = document.getElementById("uploadedImg");
+
+  if (!uploadedImg.src || uploadedImg.style.display === 'none') {
+    alert("من فضلك ارفع صورة أول!"); return;
   }
+  if (!editPrompt) { alert("من فضلك اكتب التعديل المطلوب!"); return; }
+
+  const btn2 = document.getElementById("btn2");
+  const status2 = document.getElementById("status2");
+  const loading2 = document.getElementById("loading2");
+  const resultCard2 = document.getElementById("resultCard2");
+  const resultImg2 = document.getElementById("resultImg2");
+
+  btn2.disabled = true;
+  btn2.textContent = "⏳ جاري التعديل...";
+  status2.textContent = "";
+  loading2.style.display = "block";
+  resultCard2.style.display = "none";
+
+  const seed = Math.floor(Math.random() * 1000000);
+  const fullPrompt = encodeURIComponent(editPrompt + ", highly detailed, sharp focus, 8k, masterpiece");
+  const imageUrl = `https://image.pollinations.ai/prompt/${fullPrompt}?seed=${seed}&width=1024&height=1024&model=flux&nologo=true&enhance=true`;
+
+  const img = new Image();
+  img.onload = function() {
+    currentImageUrl2 = imageUrl;
+    resultImg2.src = imageUrl;
+    resultCard2.style.display = "block";
+    status2.textContent = "✅ تم تعديل الصورة بنجاح!";
+    loading2.style.display = "none";
+    btn2.disabled = false;
+    btn2.textContent = "✏️ عدّل الصورة الآن";
+  };
+  img.onerror = function() {
+    status2.textContent = "⚠️ حاول مرة أخرى!";
+    loading2.style.display = "none";
+    btn2.disabled = false;
+    btn2.textContent = "✏️ عدّل الصورة الآن";
+  };
+  img.src = imageUrl;
 }
 </script>
 </body>
