@@ -6,158 +6,36 @@
 <title>Madnis AI - مولد الصور</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    background: #000;
-    color: #fff;
-    font-family: 'Arial', sans-serif;
-    min-height: 100vh;
-  }
-  header {
-    border-bottom: 1px solid #1a1a1a;
-    padding: 20px 30px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  header h1 {
-    font-size: 1.8em;
-    color: #ff2222;
-    letter-spacing: 3px;
-    text-shadow: 0 0 15px rgba(255,0,0,0.5);
-  }
-  header span {
-    background: #ff2222;
-    color: white;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 0.75em;
-    font-weight: bold;
-  }
-  .hero {
-    text-align: center;
-    padding: 60px 20px 40px;
-    background: radial-gradient(ellipse at top, #1a0000 0%, #000 60%);
-  }
-  .hero h2 {
-    font-size: 2.5em;
-    margin-bottom: 15px;
-    background: linear-gradient(90deg, #ff2222, #ff6666, #ff2222);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
+  body { background: #000; color: #fff; font-family: 'Arial', sans-serif; min-height: 100vh; }
+  header { border-bottom: 1px solid #1a1a1a; padding: 20px 30px; display: flex; align-items: center; justify-content: space-between; }
+  header h1 { font-size: 1.8em; color: #ff2222; letter-spacing: 3px; text-shadow: 0 0 15px rgba(255,0,0,0.5); }
+  header span { background: #ff2222; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.75em; font-weight: bold; }
+  .hero { text-align: center; padding: 60px 20px 40px; background: radial-gradient(ellipse at top, #1a0000 0%, #000 60%); }
+  .hero h2 { font-size: 2.5em; margin-bottom: 15px; background: linear-gradient(90deg, #ff2222, #ff6666, #ff2222); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
   .hero p { color: #888; font-size: 1.1em; max-width: 500px; margin: 0 auto; line-height: 1.6; }
   .main { max-width: 700px; margin: 0 auto; padding: 40px 20px; }
-  .input-card {
-    background: #0d0d0d;
-    border: 1px solid #2a2a2a;
-    border-radius: 16px;
-    padding: 24px;
-    margin-bottom: 20px;
-  }
-  .input-card label {
-    display: block;
-    color: #ff4444;
-    font-size: 0.9em;
-    margin-bottom: 10px;
-    font-weight: bold;
-    letter-spacing: 1px;
-  }
-  textarea {
-    width: 100%;
-    padding: 15px;
-    border-radius: 10px;
-    border: 1px solid #333;
-    background: #111;
-    color: #fff;
-    font-size: 1em;
-    resize: none;
-    height: 110px;
-    outline: none;
-    transition: border 0.3s;
-    line-height: 1.6;
-  }
+  .input-card { background: #0d0d0d; border: 1px solid #2a2a2a; border-radius: 16px; padding: 24px; margin-bottom: 20px; }
+  .input-card label { display: block; color: #ff4444; font-size: 0.9em; margin-bottom: 10px; font-weight: bold; letter-spacing: 1px; }
+  textarea { width: 100%; padding: 15px; border-radius: 10px; border: 1px solid #333; background: #111; color: #fff; font-size: 1em; resize: none; height: 110px; outline: none; transition: border 0.3s; line-height: 1.6; }
   textarea:focus { border-color: #ff2222; }
   textarea::placeholder { color: #444; }
-  .models {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-top: 15px;
-  }
-  .model-btn {
-    padding: 8px 16px;
-    border-radius: 20px;
-    border: 1px solid #333;
-    background: #111;
-    color: #888;
-    font-size: 0.85em;
-    cursor: pointer;
-    transition: all 0.3s;
-  }
-  .model-btn:hover, .model-btn.active {
-    border-color: #ff2222;
-    color: #ff2222;
-    background: rgba(255,34,34,0.1);
-  }
-  .gen-btn {
-    width: 100%;
-    padding: 18px;
-    background: linear-gradient(135deg, #ff2222, #cc0000);
-    border: none;
-    border-radius: 12px;
-    color: white;
-    font-size: 1.15em;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s;
-    letter-spacing: 1px;
-    box-shadow: 0 4px 20px rgba(255,0,0,0.3);
-  }
+  .styles { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
+  .style-btn { padding: 8px 16px; border-radius: 20px; border: 1px solid #333; background: #111; color: #888; font-size: 0.85em; cursor: pointer; transition: all 0.3s; }
+  .style-btn:hover, .style-btn.active { border-color: #ff2222; color: #ff2222; background: rgba(255,34,34,0.1); }
+  .gen-btn { width: 100%; padding: 18px; background: linear-gradient(135deg, #ff2222, #cc0000); border: none; border-radius: 12px; color: white; font-size: 1.15em; font-weight: bold; cursor: pointer; transition: all 0.3s; letter-spacing: 1px; box-shadow: 0 4px 20px rgba(255,0,0,0.3); }
   .gen-btn:hover { transform: translateY(-2px); }
   .gen-btn:disabled { background: #330000; box-shadow: none; transform: none; cursor: not-allowed; }
   .loading { display: none; text-align: center; padding: 40px; }
-  .spinner {
-    width: 50px; height: 50px;
-    border: 3px solid #1a1a1a;
-    border-top: 3px solid #ff2222;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin: 0 auto 20px;
-  }
+  .spinner { width: 50px; height: 50px; border: 3px solid #1a1a1a; border-top: 3px solid #ff2222; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .loading p { color: #888; font-size: 0.95em; }
-  .result-card {
-    display: none;
-    background: #0d0d0d;
-    border: 1px solid #2a2a2a;
-    border-radius: 16px;
-    overflow: hidden;
-    margin-top: 20px;
-  }
+  .loading p { color: #888; }
+  .result-card { display: none; background: #0d0d0d; border: 1px solid #2a2a2a; border-radius: 16px; overflow: hidden; margin-top: 20px; }
   .result-card img { width: 100%; display: block; }
   .result-actions { padding: 16px 20px; border-top: 1px solid #1a1a1a; }
-  .download-btn {
-    width: 100%;
-    padding: 12px;
-    background: transparent;
-    border: 1px solid #ff2222;
-    border-radius: 10px;
-    color: #ff2222;
-    font-size: 0.95em;
-    cursor: pointer;
-    font-weight: bold;
-    transition: all 0.3s;
-  }
+  .download-btn { width: 100%; padding: 12px; background: transparent; border: 1px solid #ff2222; border-radius: 10px; color: #ff2222; font-size: 0.95em; cursor: pointer; font-weight: bold; transition: all 0.3s; }
   .download-btn:hover { background: rgba(255,34,34,0.1); }
   #status { text-align: center; padding: 15px; font-size: 0.95em; color: #ff4444; }
-  footer {
-    text-align: center;
-    padding: 30px;
-    color: #333;
-    font-size: 0.85em;
-    border-top: 1px solid #111;
-    margin-top: 60px;
-  }
+  footer { text-align: center; padding: 30px; color: #333; font-size: 0.85em; border-top: 1px solid #111; margin-top: 60px; }
   footer span { color: #ff2222; }
 </style>
 </head>
@@ -177,11 +55,12 @@
   <div class="input-card">
     <label>✦ اكتب وصف الصورة بالإنجليزي</label>
     <textarea id="prompt" placeholder="Example: Egyptian man, handsome face, realistic, 8k..."></textarea>
-    <div class="models">
-      <button class="model-btn active" onclick="setModel(this, 'sdxl')">SDXL</button>
-      <button class="model-btn" onclick="setModel(this, 'sd15')">SD 1.5</button>
-      <button class="model-btn" onclick="setModel(this, 'dreamshaper')">DreamShaper</button>
-      <button class="model-btn" onclick="setModel(this, 'realisticvision')">Realistic</button>
+    <div class="styles">
+      <button class="style-btn active" onclick="setStyle(this, '')">عادي</button>
+      <button class="style-btn" onclick="setStyle(this, ', realistic photography, 4k, highly detailed')">واقعي</button>
+      <button class="style-btn" onclick="setStyle(this, ', digital art, highly detailed, vibrant')">فن رقمي</button>
+      <button class="style-btn" onclick="setStyle(this, ', anime style, vibrant colors, detailed')">أنمي</button>
+      <button class="style-btn" onclick="setStyle(this, ', oil painting, artistic, masterpiece')">لوحة فنية</button>
     </div>
   </div>
 
@@ -189,7 +68,7 @@
   <div id="status"></div>
   <div class="loading" id="loading">
     <div class="spinner"></div>
-    <p>جاري توليد صورتك بجودة عالية...</p>
+    <p id="loadingText">جاري توليد صورتك بجودة عالية...</p>
   </div>
   <div class="result-card" id="resultCard">
     <img id="resultImg" src="" alt="صورة مولدة">
@@ -204,28 +83,23 @@
 </footer>
 
 <script>
-const MODELS = {
-  sdxl: 'stable-diffusion-xl-base-1.0',
-  sd15: 'stable-diffusion-v1-5',
-  dreamshaper: 'dreamshaper_8',
-  realisticvision: 'realisticVisionV51_v51VAE'
-};
+let styleExtra = '';
+let currentImgSrc = '';
 
-let currentModel = 'sdxl';
-let currentImgUrl = '';
-
-function setModel(btn, model) {
-  document.querySelectorAll('.model-btn').forEach(b => b.classList.remove('active'));
+function setStyle(btn, style) {
+  document.querySelectorAll('.style-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  currentModel = model;
+  styleExtra = style;
 }
 
 function downloadImage() {
   const a = document.createElement("a");
-  a.href = currentImgUrl;
+  a.href = currentImgSrc;
   a.download = "madnis-ai.png";
   a.click();
 }
+
+const API_KEY = "ApmvMIelujjahZpCXrAuIA";
 
 async function generateImage() {
   const promptText = document.getElementById("prompt").value.trim();
@@ -236,6 +110,7 @@ async function generateImage() {
   const loading = document.getElementById("loading");
   const resultCard = document.getElementById("resultCard");
   const resultImg = document.getElementById("resultImg");
+  const loadingText = document.getElementById("loadingText");
 
   btn.disabled = true;
   btn.textContent = "⏳ جاري التوليد...";
@@ -243,57 +118,65 @@ async function generateImage() {
   loading.style.display = "block";
   resultCard.style.display = "none";
 
+  const fullPrompt = promptText + styleExtra + ", highly detailed, sharp focus, 8k, masterpiece";
+
   try {
-    const res = await fetch("https://api.prodia.com/v1/job", {
+    // ابعت الطلب
+    const res = await fetch("https://stablehorde.net/api/v2/generate/async", {
       method: "POST",
       headers: {
-        "X-Prodia-Key": "fd0d4a82-0ebe-11ef-a673-aa665a335a4c",
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "apikey": API_KEY
       },
       body: JSON.stringify({
-        model: MODELS[currentModel],
-        prompt: promptText + ", highly detailed, sharp focus, 8k",
-        negative_prompt: "blurry, bad anatomy, ugly, deformed, extra limbs",
-        steps: 30,
-        cfg_scale: 7,
-        width: 768,
-        height: 768
+        prompt: fullPrompt,
+        params: {
+          width: 768,
+          height: 768,
+          steps: 30,
+          cfg_scale: 7,
+          sampler_name: "k_euler_a"
+        },
+        models: ["stable_diffusion_xl"],
+        r2: true
       })
     });
 
-    const job = await res.json();
-    const jobId = job.job;
+    const data = await res.json();
+    const jobId = data.id;
 
     // انتظر النتيجة
-    let imageUrl = '';
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < 60; i++) {
       await new Promise(r => setTimeout(r, 3000));
-      const check = await fetch(`https://api.prodia.com/v1/job/${jobId}`, {
-        headers: { "X-Prodia-Key": "fd0d4a82-0ebe-11ef-a673-aa665a335a4c" }
-      });
-      const result = await check.json();
-      if (result.status === "succeeded") {
-        imageUrl = result.imageUrl;
-        break;
+      loadingText.textContent = `جاري التوليد... ${i * 3} ثانية`;
+
+      const check = await fetch(`https://stablehorde.net/api/v2/generate/check/${jobId}`);
+      const checkData = await check.json();
+
+      if (checkData.done) {
+        const statusRes = await fetch(`https://stablehorde.net/api/v2/generate/status/${jobId}`);
+        const statusData = await statusRes.json();
+        const imgUrl = statusData.generations[0].img;
+
+        currentImgSrc = imgUrl;
+        resultImg.src = imgUrl;
+        resultCard.style.display = "block";
+        status.textContent = "✅ تم توليد الصورة بنجاح!";
+        loading.style.display = "none";
+        btn.disabled = false;
+        btn.textContent = "🎨 ولّد الصورة الآن";
+        return;
       }
     }
 
-    if (imageUrl) {
-      currentImgUrl = imageUrl;
-      resultImg.src = imageUrl;
-      resultCard.style.display = "block";
-      status.textContent = "✅ تم توليد الصورة بنجاح!";
-    } else {
-      throw new Error("timeout");
-    }
+    throw new Error("timeout");
 
   } catch(e) {
     status.textContent = "⚠️ حاول مرة أخرى بعد دقيقة!";
+    loading.style.display = "none";
+    btn.disabled = false;
+    btn.textContent = "🎨 ولّد الصورة الآن";
   }
-
-  loading.style.display = "none";
-  btn.disabled = false;
-  btn.textContent = "🎨 ولّد الصورة الآن";
 }
 </script>
 </body>
