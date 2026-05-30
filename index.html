@@ -6,15 +6,12 @@
 <title>Madnis AI - مولد الصور</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  
   body {
     background: #000;
     color: #fff;
     font-family: 'Arial', sans-serif;
     min-height: 100vh;
   }
-
-  /* Header */
   header {
     border-bottom: 1px solid #1a1a1a;
     padding: 20px 30px;
@@ -37,8 +34,6 @@
     font-size: 0.75em;
     font-weight: bold;
   }
-
-  /* Hero */
   .hero {
     text-align: center;
     padding: 60px 20px 40px;
@@ -58,15 +53,11 @@
     margin: 0 auto;
     line-height: 1.6;
   }
-
-  /* Main */
   .main {
     max-width: 700px;
     margin: 0 auto;
     padding: 40px 20px;
   }
-
-  /* Input Box */
   .input-card {
     background: #0d0d0d;
     border: 1px solid #2a2a2a;
@@ -98,8 +89,6 @@
   }
   textarea:focus { border-color: #ff2222; }
   textarea::placeholder { color: #444; }
-
-  /* Style Selector */
   .styles {
     display: flex;
     gap: 10px;
@@ -121,8 +110,6 @@
     color: #ff2222;
     background: rgba(255,34,34,0.1);
   }
-
-  /* Generate Button */
   .gen-btn {
     width: 100%;
     padding: 18px;
@@ -139,8 +126,6 @@
   }
   .gen-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 25px rgba(255,0,0,0.4); }
   .gen-btn:disabled { background: #330000; box-shadow: none; transform: none; cursor: not-allowed; }
-
-  /* Loading */
   .loading {
     display: none;
     text-align: center;
@@ -157,8 +142,6 @@
   }
   @keyframes spin { to { transform: rotate(360deg); } }
   .loading p { color: #888; font-size: 0.95em; }
-
-  /* Result */
   .result-card {
     display: none;
     background: #0d0d0d;
@@ -167,10 +150,7 @@
     overflow: hidden;
     margin-top: 20px;
   }
-  .result-card img {
-    width: 100%;
-    display: block;
-  }
+  .result-card img { width: 100%; display: block; }
   .result-actions {
     padding: 16px 20px;
     display: flex;
@@ -190,16 +170,12 @@
     transition: all 0.3s;
   }
   .download-btn:hover { background: rgba(255,34,34,0.1); }
-
-  /* Status */
   #status {
     text-align: center;
     padding: 15px;
     font-size: 0.95em;
     color: #ff4444;
   }
-
-  /* Footer */
   footer {
     text-align: center;
     padding: 30px;
@@ -225,9 +201,8 @@
 
 <div class="main">
   <div class="input-card">
-    <label>✦ اكتب وصف الصورة</label>
-    <textarea id="prompt" placeholder="مثال: رجل يقف على قمة جبل وقت الغروب، ألوان برتقالية وذهبية..."></textarea>
-    
+    <label>✦ اكتب وصف الصورة بالإنجليزي</label>
+    <textarea id="prompt" placeholder="Example: a red dragon flying over a city at night..."></textarea>
     <div class="styles">
       <button class="style-btn active" onclick="setStyle(this, '')">عادي</button>
       <button class="style-btn" onclick="setStyle(this, ', realistic photography, 4k')">واقعي</button>
@@ -267,7 +242,7 @@ function setStyle(btn, style) {
   styleExtra = style;
 }
 
-const TOKEN = "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";
+const TOKEN = "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";
 
 async function generateImage() {
   const promptText = document.getElementById("prompt").value.trim();
@@ -288,10 +263,10 @@ async function generateImage() {
 
   const fullPrompt = promptText + styleExtra;
 
-  // جرب موديلين مختلفين
   const models = [
-    "black-forest-labs/FLUX.1-schnell",
-    "stabilityai/stable-diffusion-xl-base-1.0"
+    "stabilityai/stable-diffusion-xl-base-1.0",
+    "runwayml/stable-diffusion-v1-5",
+    "stabilityai/stable-diffusion-2-1"
   ];
 
   let success = false;
@@ -306,7 +281,10 @@ async function generateImage() {
             "Authorization": `Bearer ${TOKEN}`,
             "Content-Type": "application/json"
           },
-          body: JSON.stringify({ inputs: fullPrompt })
+          body: JSON.stringify({ 
+            inputs: fullPrompt,
+            options: { wait_for_model: true }
+          })
         }
       );
 
