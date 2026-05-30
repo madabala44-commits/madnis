@@ -29,6 +29,7 @@
   .styles { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
   .style-btn { padding: 8px 16px; border-radius: 20px; border: 1px solid #333; background: #111; color: #888; font-size: 0.85em; cursor: pointer; transition: all 0.3s; }
   .style-btn:hover, .style-btn.active { border-color: #ff2222; color: #ff2222; background: rgba(255,34,34,0.1); }
+  .translate-hint { color: #555; font-size: 0.8em; margin-top: 8px; }
   .gen-btn { width: 100%; padding: 18px; background: linear-gradient(135deg, #ff2222, #cc0000); border: none; border-radius: 12px; color: white; font-size: 1.15em; font-weight: bold; cursor: pointer; transition: all 0.3s; letter-spacing: 1px; box-shadow: 0 4px 20px rgba(255,0,0,0.3); }
   .gen-btn:hover { transform: translateY(-2px); }
   .gen-btn:disabled { background: #330000; box-shadow: none; transform: none; cursor: not-allowed; }
@@ -57,7 +58,7 @@
 
 <div class="hero">
   <h2>ولّد صورك بالذكاء الاصطناعي</h2>
-  <p>اكتب أي وصف تخيله وسيقوم الذكاء الاصطناعي بتحويله لصورة احترافية في ثوانٍ</p>
+  <p>اكتب أي وصف تخيله بالعربي أو الإنجليزي وسيقوم الذكاء الاصطناعي بتحويله لصورة احترافية</p>
 </div>
 
 <div class="main">
@@ -71,8 +72,9 @@
 
   <div id="appContent" style="display:none">
     <div class="input-card">
-      <label>✦ اكتب وصف الصورة بالإنجليزي</label>
-      <textarea id="prompt" placeholder="Example: handsome Arab man, brown skin, dark eyes, photorealistic, 8k..."></textarea>
+      <label>✦ اكتب وصف الصورة بالعربي أو الإنجليزي</label>
+      <textarea id="prompt" placeholder="مثال: رجل عربي وسيم بعيون بنية وشعر أسود..."></textarea>
+      <p class="translate-hint">🌐 سيتم ترجمة النص العربي تلقائياً</p>
       <div class="styles">
         <button class="style-btn active" onclick="setStyle(this, '')">عادي</button>
         <button class="style-btn" onclick="setStyle(this, ', realistic photography, 4k, highly detailed')">واقعي</button>
@@ -85,7 +87,7 @@
     <div id="status"></div>
     <div class="loading" id="loading">
       <div class="spinner"></div>
-      <p>جاري توليد صورتك... لحظة من فضلك</p>
+      <p id="loadingText">جاري توليد صورتك... لحظة من فضلك</p>
     </div>
     <div class="result-card" id="resultCard">
       <img id="resultImg" src="" alt="صورة مولدة">
@@ -121,6 +123,20 @@ const provider = new GoogleAuthProvider();
 let styleExtra = '';
 let currentImageUrl = '';
 
+function isArabic(text) {
+  return /[\u0600-\u06FF]/.test(text);
+}
+
+async function translateToEnglish(text) {
+  try {
+    const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=ar|en`);
+    const data = await res.json();
+    return data.responseData.translatedText || text;
+  } catch(e) {
+    return text;
+  }
+}
+
 window.loginWithGoogle = async function() {
   try {
     await signInWithPopup(auth, provider);
@@ -153,6 +169,7 @@ window.generateImage = async function() {
   const btn = document.getElementById("btn");
   const status = document.getElementById("status");
   const loading = document.getElementById("loading");
+  const loadingText = document.getElementById("loadingText");
   const resultCard = document.getElementById("resultCard");
   const resultImg = document.getElementById("resultImg");
 
@@ -162,8 +179,16 @@ window.generateImage = async function() {
   loading.style.display = "block";
   resultCard.style.display = "none";
 
+  let finalPrompt = promptText;
+
+  if (isArabic(promptText)) {
+    loadingText.textContent = "جاري ترجمة النص...";
+    finalPrompt = await translateToEnglish(promptText);
+    loadingText.textContent = "جاري توليد صورتك... لحظة من فضلك";
+  }
+
   const seed = Math.floor(Math.random() * 1000000);
-  const fullPrompt = encodeURIComponent(promptText + styleExtra + ", highly detailed, sharp focus, 8k, masterpiece");
+  const fullPrompt = encodeURIComponent(finalPrompt + styleExtra + ", highly detailed, sharp focus, 8k, masterpiece");
   const imageUrl = `https://image.pollinations.ai/prompt/${fullPrompt}?seed=${seed}&width=1024&height=1024&model=flux&nologo=true&enhance=true`;
 
   const img = new Image();
