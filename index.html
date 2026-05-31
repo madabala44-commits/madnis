@@ -8,9 +8,7 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { background: #000; color: #fff; font-family: 'Arial', sans-serif; min-height: 100vh; }
   header { border-bottom: 1px solid #1a1a1a; padding: 15px 25px; display: flex; align-items: center; justify-content: space-between; }
-  .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
-  .logo h1 { font-size: 1.6em; color: #fff; letter-spacing: 2px; font-weight: 800; }
-  .logo h1 span { color: #ff2222; }
+  .logo h1 { font-size: 1.6em; font-weight: 800; letter-spacing: 2px; color: #ff2222; text-shadow: 2px 2px 0px #555, 4px 4px 0px #333; }
   .user-area { display: flex; align-items: center; gap: 10px; }
   .user-area img { width: 35px; height: 35px; border-radius: 50%; border: 2px solid #ff2222; }
   .user-name { color: #aaa; font-size: 0.85em; }
@@ -74,7 +72,7 @@
 
 <header>
   <div class="logo">
-    <h1>MADA <span>AI</span></h1>
+    <h1>MADA AI</h1>
   </div>
   <div class="user-area" id="userArea">
     <button class="login-btn" onclick="loginWithGoogle()">دخول بـ Google</button>
@@ -210,7 +208,7 @@ function isArabic(text) {
 
 async function translateToEnglish(text) {
   try {
-    const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=ar|en`);
+    const res = await fetch("https://api.mymemory.translated.net/get?q=" + encodeURIComponent(text) + "&langpair=ar|en");
     const data = await res.json();
     return data.responseData.translatedText || text;
   } catch(e) { return text; }
@@ -267,12 +265,12 @@ function renderPrompts(prompts, containerId) {
   `).join('');
 
   prompts.forEach((p, i) => {
-    document.getElementById(`cp_${containerId}_${i}`).addEventListener('click', function() {
+    document.getElementById("cp_" + containerId + "_" + i).addEventListener('click', function() {
       navigator.clipboard.writeText(p);
       this.textContent = "✅ تم النسخ!";
       setTimeout(() => this.textContent = "📋 نسخ", 2000);
     });
-    document.getElementById(`us_${containerId}_${i}`).addEventListener('click', function() {
+    document.getElementById("us_" + containerId + "_" + i).addEventListener('click', function() {
       switchTab('generate');
       document.getElementById('prompt').value = p;
     });
@@ -283,7 +281,7 @@ async function callOpenRouter(messages) {
   const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: {
-      "Authorization": `Bearer ${OR_KEY}`,
+      "Authorization": "Bearer " + OR_KEY,
       "Content-Type": "application/json",
       "HTTP-Referer": "https://madabala44-commits.github.io/madnis/",
       "X-Title": "Mada AI"
@@ -298,7 +296,7 @@ async function callOpenRouter(messages) {
 
   if (!res.ok) {
     const err = await res.json();
-    throw new Error(err.error?.message || `HTTP ${res.status}`);
+    throw new Error(err.error?.message || "HTTP " + res.status);
   }
 
   const data = await res.json();
@@ -322,20 +320,7 @@ window.generatePrompts = async function() {
   try {
     const text = await callOpenRouter([{
       role: "user",
-      content: `You are a world-class AI image prompt engineer. Generate exactly 3 extremely detailed professional image generation prompts in English based on this idea: "${idea}"
-
-Each prompt must include:
-- Detailed subject description
-- Rich environment and atmosphere
-- Precise lighting details
-- Camera details (shot type, angle, focal length)
-- Technical quality keywords (photorealistic, 8k, ultra-detailed, sharp focus)
-- Color palette and mood
-
-Make each prompt at least 80 words.
-
-Return ONLY a valid JSON array, no markdown, no extra text:
-["prompt1", "prompt2", "prompt3"]`
+      content: 'Generate exactly 3 detailed professional image generation prompts in English based on this idea: "' + idea + '". Each prompt must include subject description, environment, lighting, camera details, and quality keywords. Make each at least 80 words. Return ONLY a valid JSON array, no markdown: ["prompt1", "prompt2", "prompt3"]'
     }]);
 
     const clean = text.replace(/```json|```/g, '').trim();
@@ -343,7 +328,6 @@ Return ONLY a valid JSON array, no markdown, no extra text:
     renderPrompts(prompts, 'promptResults');
     status.textContent = "✅ تم توليد 3 برومبت احترافية!";
   } catch(e) {
-    console.error(e);
     status.textContent = "⚠️ حصل خطأ: " + e.message;
   }
 
@@ -371,25 +355,11 @@ window.generatePromptFromImage = async function() {
       content: [
         {
           type: "image_url",
-          image_url: { url: `data:${uploadedMimeType};base64,${uploadedImageBase64}` }
+          image_url: { url: "data:" + uploadedMimeType + ";base64," + uploadedImageBase64 }
         },
         {
           type: "text",
-          text: `You are a world-class AI image prompt engineer. Analyze this image in extreme detail and generate 3 different professional image generation prompts based on what you see.
-
-For each prompt include:
-- Visual elements with precision (colors, textures, materials)
-- Subject details (appearance, pose, expression, clothing)
-- Lighting and shadows
-- Background and environment
-- Camera angle and composition
-- Technical quality keywords (photorealistic, 8k, ultra-detailed, sharp focus)
-- Mood and atmosphere
-
-Make each prompt at least 80 words.
-
-Return ONLY a valid JSON array, no markdown, no extra text:
-["prompt1", "prompt2", "prompt3"]`
+          text: "Analyze this image and generate 3 professional image generation prompts based on what you see. Include visual elements, lighting, camera angle, and quality keywords. Make each at least 80 words. Return ONLY a valid JSON array, no markdown: [\"prompt1\", \"prompt2\", \"prompt3\"]"
         }
       ]
     }]);
@@ -399,7 +369,6 @@ Return ONLY a valid JSON array, no markdown, no extra text:
     renderPrompts(prompts, 'imgPromptResults');
     status.textContent = "✅ تم تحليل الصورة وتوليد البرومبت!";
   } catch(e) {
-    console.error(e);
     status.textContent = "⚠️ حصل خطأ: " + e.message;
   }
 
@@ -426,15 +395,26 @@ window.generateImage = async function() {
   resultCard.style.display = "none";
 
   let finalPrompt = promptText;
+
   if (isArabic(promptText)) {
     loadingText.textContent = "جاري ترجمة النص...";
     finalPrompt = await translateToEnglish(promptText);
-    loadingText.textContent = "جاري توليد صورتك...";
   }
 
+  loadingText.textContent = "جاري تحسين البرومبت...";
+  try {
+    const enhanced = await callOpenRouter([{
+      role: "user",
+      content: "You are an expert image prompt engineer. Enhance this prompt to be extremely detailed and optimized for AI image generation. Add lighting details, camera settings, art style, quality boosters. Keep it under 200 words. Return ONLY the enhanced prompt, nothing else: \"" + finalPrompt + "\""
+    }]);
+    finalPrompt = enhanced.trim();
+  } catch(e) {}
+
+  loadingText.textContent = "جاري توليد صورتك...";
+
   const seed = Math.floor(Math.random() * 1000000);
-  const fullPrompt = encodeURIComponent(finalPrompt + styleExtra + ", highly detailed, sharp focus, 8k, masterpiece");
-  const imageUrl = `https://image.pollinations.ai/prompt/${fullPrompt}?seed=${seed}&width=1024&height=1024&model=flux&nologo=true&enhance=true`;
+  const fullPrompt = encodeURIComponent(finalPrompt + styleExtra);
+  const imageUrl = "https://image.pollinations.ai/prompt/" + fullPrompt + "?seed=" + seed + "&width=1024&height=1024&model=flux-pro&nologo=true&enhance=true";
 
   const img = new Image();
   img.onload = function() {
@@ -460,18 +440,16 @@ onAuthStateChanged(auth, (user) => {
     document.getElementById("loginPrompt").style.display = "none";
     document.getElementById("appContent").style.display = "block";
     document.getElementById("tabs").style.display = "flex";
-    document.getElementById("userArea").innerHTML = `
-      <img src="${user.photoURL}" alt="">
-      <span class="user-name">${user.displayName.split(' ')[0]}</span>
-      <button class="logout-btn" onclick="logoutUser()">خروج</button>
-    `;
+    document.getElementById("userArea").innerHTML =
+      '<img src="' + user.photoURL + '" alt="">' +
+      '<span class="user-name">' + user.displayName.split(' ')[0] + '</span>' +
+      '<button class="logout-btn" onclick="logoutUser()">خروج</button>';
   } else {
     document.getElementById("loginPrompt").style.display = "block";
     document.getElementById("appContent").style.display = "none";
     document.getElementById("tabs").style.display = "none";
-    document.getElementById("userArea").innerHTML = `
-      <button class="login-btn" onclick="loginWithGoogle()">دخول بـ Google</button>
-    `;
+    document.getElementById("userArea").innerHTML =
+      '<button class="login-btn" onclick="loginWithGoogle()">دخول بـ Google</button>';
   }
 });
 </script>
