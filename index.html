@@ -71,9 +71,7 @@
 <body>
 
 <header>
-  <div class="logo">
-    <h1>MADA AI</h1>
-  </div>
+  <div class="logo"><h1>MADA AI</h1></div>
   <div class="user-area" id="userArea">
     <button class="login-btn" onclick="loginWithGoogle()">دخول بـ Google</button>
   </div>
@@ -186,9 +184,6 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-const OR_KEY = "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";
-const MODEL = "google/gemini-2.0-flash-exp:free";
-
 let styleExtra = '';
 let currentImageUrl = '';
 let uploadedImageBase64 = '';
@@ -263,7 +258,6 @@ function renderPrompts(prompts, containerId) {
       </div>
     </div>
   `).join('');
-
   prompts.forEach((p, i) => {
     document.getElementById("cp_" + containerId + "_" + i).addEventListener('click', function() {
       navigator.clipboard.writeText(p);
@@ -277,30 +271,32 @@ function renderPrompts(prompts, containerId) {
   });
 }
 
-async function callOpenRouter(messages) {
-  const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+// ===== Hugging Face للبرومبت - مجاني بدون مفتاح =====
+async function callHuggingFace(prompt) {
+  const res = await fetch("https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.3", {
     method: "POST",
-    headers: {
-      "Authorization": "Bearer " + OR_KEY,
-      "Content-Type": "application/json",
-      "HTTP-Referer": "https://madabala44-commits.github.io/madnis/",
-      "X-Title": "Mada AI"
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      model: MODEL,
-      messages: messages,
-      max_tokens: 2000,
-      temperature: 0.8
+      inputs: "<s>[INST] " + prompt + " [/INST]",
+      parameters: { max_new_tokens: 1000, temperature: 0.8, return_full_text: false }
     })
   });
-
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.error?.message || "HTTP " + res.status);
-  }
-
+  if (!res.ok) throw new Error("HuggingFace error: " + res.status);
   const data = await res.json();
-  return data.choices[0].message.content;
+  if (data.error) throw new Error(data.error);
+  return data[0].generated_text;
+}
+
+async function callHuggingFaceVision(base64, mimeType) {
+  const res = await fetch("https://api-inference.huggingface.co/models/Salesforce/blip-image-captioning-large", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ inputs: "data:" + mimeType + ";base64," + base64 })
+  });
+  if (!res.ok) throw new Error("Vision error: " + res.status);
+  const data = await res.json();
+  if (data.error) throw new Error(data.error);
+  return data[0].generated_text;
 }
 
 window.generatePrompts = async function() {
@@ -318,12 +314,15 @@ window.generatePrompts = async function() {
   document.getElementById("promptResults").innerHTML = "";
 
   try {
-    const text = await callOpenRouter([{
-      role: "user",
-      content: 'Generate exactly 3 detailed professional image generation prompts in English based on this idea: "' + idea + '". Each prompt must include subject description, environment, lighting, camera details, and quality keywords. Make each at least 80 words. Return ONLY a valid JSON array, no markdown: ["prompt1", "prompt2", "prompt3"]'
-    }]);
+    const text = await callHuggingFace(
+      'Generate exactly 3 detailed professional AI image generation prompts in English based on this idea: "' + idea + '". Each prompt must include subject description, environment, lighting, camera details, quality keywords like photorealistic 8k ultra-detailed. Make each at least 60 words. Return ONLY a JSON array like this exact format with no extra text: ["prompt one here", "prompt two here", "prompt three here"]'
+    );
 
-    const clean = text.replace(/```json|```/g, '').trim();
+    let clean = text.replace(/```json|```/g, '').trim();
+    const start = clean.indexOf('[');
+    const end = clean.lastIndexOf(']');
+    if (start === -1 || end === -1) throw new Error("فشل تحليل الرد");
+    clean = clean.substring(start, end + 1);
     const prompts = JSON.parse(clean);
     renderPrompts(prompts, 'promptResults');
     status.textContent = "✅ تم توليد 3 برومبت احترافية!";
@@ -350,21 +349,19 @@ window.generatePromptFromImage = async function() {
   document.getElementById("imgPromptResults").innerHTML = "";
 
   try {
-    const text = await callOpenRouter([{
-      role: "user",
-      content: [
-        {
-          type: "image_url",
-          image_url: { url: "data:" + uploadedMimeType + ";base64," + uploadedImageBase64 }
-        },
-        {
-          type: "text",
-          text: "Analyze this image and generate 3 professional image generation prompts based on what you see. Include visual elements, lighting, camera angle, and quality keywords. Make each at least 80 words. Return ONLY a valid JSON array, no markdown: [\"prompt1\", \"prompt2\", \"prompt3\"]"
-        }
-      ]
-    }]);
+    // أول خطوة: وصف الصورة
+    const caption = await callHuggingFaceVision(uploadedImageBase64, uploadedMimeType);
 
-    const clean = text.replace(/```json|```/g, '').trim();
+    // تاني خطوة: توليد 3 برومبت من الوصف
+    const text = await callHuggingFace(
+      'Based on this image description: "' + caption + '", generate exactly 3 detailed professional AI image generation prompts in English. Each must include lighting, camera angle, quality keywords like photorealistic 8k ultra-detailed sharp focus. Make each at least 60 words. Return ONLY a JSON array: ["prompt one", "prompt two", "prompt three"]'
+    );
+
+    let clean = text.replace(/```json|```/g, '').trim();
+    const start = clean.indexOf('[');
+    const end = clean.lastIndexOf(']');
+    if (start === -1 || end === -1) throw new Error("فشل تحليل الرد");
+    clean = clean.substring(start, end + 1);
     const prompts = JSON.parse(clean);
     renderPrompts(prompts, 'imgPromptResults');
     status.textContent = "✅ تم تحليل الصورة وتوليد البرومبت!";
@@ -403,18 +400,17 @@ window.generateImage = async function() {
 
   loadingText.textContent = "جاري تحسين البرومبت...";
   try {
-    const enhanced = await callOpenRouter([{
-      role: "user",
-      content: "You are an expert image prompt engineer. Enhance this prompt to be extremely detailed and optimized for AI image generation. Add lighting details, camera settings, art style, quality boosters. Keep it under 200 words. Return ONLY the enhanced prompt, nothing else: \"" + finalPrompt + "\""
-    }]);
-    finalPrompt = enhanced.trim();
+    const enhanced = await callHuggingFace(
+      'Enhance this image prompt to be extremely detailed for AI image generation. Add lighting, camera settings, art style, quality boosters. Keep under 150 words. Return ONLY the enhanced prompt with no extra text: "' + finalPrompt + '"'
+    );
+    if (enhanced && enhanced.length > 10) finalPrompt = enhanced.trim();
   } catch(e) {}
 
   loadingText.textContent = "جاري توليد صورتك...";
 
   const seed = Math.floor(Math.random() * 1000000);
   const fullPrompt = encodeURIComponent(finalPrompt + styleExtra);
-  const imageUrl = "https://image.pollinations.ai/prompt/" + fullPrompt + "?seed=" + seed + "&width=1024&height=1024&model=flux-pro&nologo=true&enhance=true";
+  const imageUrl = "https://image.pollinations.ai/prompt/" + fullPrompt + "?seed=" + seed + "&width=1024&height=1024&model=flux-realism&nologo=true&enhance=true";
 
   const img = new Image();
   img.onload = function() {
