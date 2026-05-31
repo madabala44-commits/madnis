@@ -9,8 +9,6 @@
   body { background: #000; color: #fff; font-family: 'Arial', sans-serif; min-height: 100vh; }
   header { border-bottom: 1px solid #1a1a1a; padding: 15px 25px; display: flex; align-items: center; justify-content: space-between; }
   .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
-  .logo-icon { width: 42px; height: 42px; background: linear-gradient(135deg, #ff2222, #cc0000); border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px rgba(255,34,34,0.4); }
-  .logo-icon svg { width: 26px; height: 26px; }
   .logo h1 { font-size: 1.6em; color: #fff; letter-spacing: 2px; font-weight: 800; }
   .logo h1 span { color: #ff2222; }
   .user-area { display: flex; align-items: center; gap: 10px; }
@@ -76,11 +74,6 @@
 
 <header>
   <div class="logo">
-    <div class="logo-icon">
-      <svg viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M2 22V6L8 6L13 16L18 6L24 6V22H19V13L15 20H11L7 13V22H2Z" fill="white" stroke="white" stroke-width="0.5"/>
-      </svg>
-    </div>
     <h1>MADA <span>AI</span></h1>
   </div>
   <div class="user-area" id="userArea">
@@ -195,7 +188,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-const OR_KEY = "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";
+const OR_KEY = "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";
 const MODEL = "google/gemini-2.0-flash-exp:free";
 
 let styleExtra = '';
@@ -351,8 +344,7 @@ Return ONLY a valid JSON array, no markdown, no extra text:
     status.textContent = "✅ تم توليد 3 برومبت احترافية!";
   } catch(e) {
     console.error(e);
-    status.textContent = "⚠️ " + e.message;
-alert("ERROR: " + e.message + " | " + e.stack);
+    status.textContent = "⚠️ حصل خطأ: " + e.message;
   }
 
   loading.style.display = "none";
