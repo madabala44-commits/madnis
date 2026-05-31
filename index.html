@@ -110,7 +110,6 @@
 
   <div id="appContent" style="display:none">
 
-    <!-- قسم التوليد -->
     <div class="section active" id="generateSection">
       <div class="input-card">
         <label>✦ اكتب وصف الصورة</label>
@@ -138,7 +137,6 @@
       </div>
     </div>
 
-    <!-- قسم برومبت من نص -->
     <div class="section" id="promptSection">
       <div class="input-card">
         <label>✦ اكتب فكرتك بكلمات بسيطة</label>
@@ -153,7 +151,6 @@
       <div id="promptResults"></div>
     </div>
 
-    <!-- قسم برومبت من صورة -->
     <div class="section" id="imgpromptSection">
       <div class="input-card">
         <label>✦ ارفع صورة وسيتم تحليلها</label>
@@ -197,7 +194,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
-const GROQ_KEY = "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";
+
+const OR_KEY = "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";
+const MODEL = "google/gemini-2.0-flash-exp:free";
 
 let styleExtra = '';
 let currentImageUrl = '';
@@ -287,20 +286,28 @@ function renderPrompts(prompts, containerId) {
   });
 }
 
-async function callGroq(messages) {
-  const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+async function callOpenRouter(messages) {
+  const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: {
-      "Authorization": `Bearer ${GROQ_KEY}`,
-      "Content-Type": "application/json"
+      "Authorization": `Bearer ${OR_KEY}`,
+      "Content-Type": "application/json",
+      "HTTP-Referer": "https://madabala44-commits.github.io/madnis/",
+      "X-Title": "Mada AI"
     },
     body: JSON.stringify({
-      model: "llama3-70b-8192",
+      model: MODEL,
       messages: messages,
       max_tokens: 2000,
       temperature: 0.8
     })
   });
+
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error?.message || `HTTP ${res.status}`);
+  }
+
   const data = await res.json();
   return data.choices[0].message.content;
 }
@@ -320,22 +327,21 @@ window.generatePrompts = async function() {
   document.getElementById("promptResults").innerHTML = "";
 
   try {
-    const text = await callGroq([{
+    const text = await callOpenRouter([{
       role: "user",
       content: `You are a world-class AI image prompt engineer. Generate exactly 3 extremely detailed professional image generation prompts in English based on this idea: "${idea}"
 
 Each prompt must include:
-- Extremely detailed subject description (appearance, clothing, expression, age, skin tone, hair)
-- Rich environment and atmosphere (location, time, weather, season)
-- Precise lighting (type, direction, color temperature, shadows)
-- Camera details (shot type, angle, focal length, depth of field)
-- Technical quality (photorealistic, 8k, ultra-detailed, sharp focus, ray tracing)
+- Detailed subject description
+- Rich environment and atmosphere
+- Precise lighting details
+- Camera details (shot type, angle, focal length)
+- Technical quality keywords (photorealistic, 8k, ultra-detailed, sharp focus)
 - Color palette and mood
-- Art/photography style reference
 
-Make each prompt at least 120 words. Be extremely specific.
+Make each prompt at least 80 words.
 
-Return ONLY a valid JSON array, nothing else:
+Return ONLY a valid JSON array, no markdown, no extra text:
 ["prompt1", "prompt2", "prompt3"]`
     }]);
 
@@ -344,7 +350,8 @@ Return ONLY a valid JSON array, nothing else:
     renderPrompts(prompts, 'promptResults');
     status.textContent = "✅ تم توليد 3 برومبت احترافية!";
   } catch(e) {
-    status.textContent = "⚠️ حاول مرة أخرى!";
+    console.error(e);
+    status.textContent = "⚠️ حصل خطأ: " + e.message;
   }
 
   loading.style.display = "none";
@@ -366,7 +373,7 @@ window.generatePromptFromImage = async function() {
   document.getElementById("imgPromptResults").innerHTML = "";
 
   try {
-    const text = await callGroq([{
+    const text = await callOpenRouter([{
       role: "user",
       content: [
         {
@@ -377,8 +384,8 @@ window.generatePromptFromImage = async function() {
           type: "text",
           text: `You are a world-class AI image prompt engineer. Analyze this image in extreme detail and generate 3 different professional image generation prompts based on what you see.
 
-For each prompt include ALL of:
-- Every visual element with extreme precision (colors, textures, materials, patterns)
+For each prompt include:
+- Visual elements with precision (colors, textures, materials)
 - Subject details (appearance, pose, expression, clothing)
 - Lighting and shadows
 - Background and environment
@@ -386,9 +393,9 @@ For each prompt include ALL of:
 - Technical quality keywords (photorealistic, 8k, ultra-detailed, sharp focus)
 - Mood and atmosphere
 
-Make each prompt at least 120 words.
+Make each prompt at least 80 words.
 
-Return ONLY a valid JSON array:
+Return ONLY a valid JSON array, no markdown, no extra text:
 ["prompt1", "prompt2", "prompt3"]`
         }
       ]
@@ -399,7 +406,8 @@ Return ONLY a valid JSON array:
     renderPrompts(prompts, 'imgPromptResults');
     status.textContent = "✅ تم تحليل الصورة وتوليد البرومبت!";
   } catch(e) {
-    status.textContent = "⚠️ حاول مرة أخرى!";
+    console.error(e);
+    status.textContent = "⚠️ حصل خطأ: " + e.message;
   }
 
   loading.style.display = "none";
