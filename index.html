@@ -351,7 +351,8 @@ Return ONLY a valid JSON array, no markdown, no extra text:
     status.textContent = "✅ تم توليد 3 برومبت احترافية!";
   } catch(e) {
     console.error(e);
-    status.textContent = "⚠️ حصل خطأ: " + e.message;
+    status.textContent = "⚠️ " + e.message;
+alert("ERROR: " + e.message + " | " + e.stack);
   }
 
   loading.style.display = "none";
