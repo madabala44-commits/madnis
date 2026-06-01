@@ -8,7 +8,7 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { background: #000; color: #fff; font-family: 'Arial', sans-serif; min-height: 100vh; }
   header { border-bottom: 1px solid #1a1a1a; padding: 15px 25px; display: flex; align-items: center; justify-content: space-between; }
-  .logo h1 { font-size: 1.6em; font-weight: 800; letter-spacing: 2px; color: #ff2222; text-shadow: 2px 2px 0px #555, 4px 4px 0px #333; }
+  .logo h1 { font-size: 1.6em; font-weight: 800; letter-spacing: 2px; color: #ff2222; }
   .user-area { display: flex; align-items: center; gap: 10px; }
   .user-area img { width: 35px; height: 35px; border-radius: 50%; border: 2px solid #ff2222; }
   .user-name { color: #aaa; font-size: 0.85em; }
@@ -45,9 +45,11 @@
   .loading p { color: #888; }
   .result-card { display: none; background: #0d0d0d; border: 1px solid #2a2a2a; border-radius: 16px; overflow: hidden; margin-top: 20px; }
   .result-card img { width: 100%; display: block; }
-  .result-actions { padding: 16px 20px; border-top: 1px solid #1a1a1a; }
-  .download-btn { width: 100%; padding: 12px; background: transparent; border: 1px solid #ff2222; border-radius: 10px; color: #ff2222; font-size: 0.95em; cursor: pointer; font-weight: bold; transition: all 0.3s; }
+  .result-actions { padding: 16px 20px; border-top: 1px solid #1a1a1a; display: flex; gap: 10px; }
+  .download-btn { flex: 1; padding: 12px; background: transparent; border: 1px solid #ff2222; border-radius: 10px; color: #ff2222; font-size: 0.95em; cursor: pointer; font-weight: bold; transition: all 0.3s; }
   .download-btn:hover { background: rgba(255,34,34,0.1); }
+  .share-btn { flex: 1; padding: 12px; background: #ff2222; border: none; border-radius: 10px; color: white; font-size: 0.95em; cursor: pointer; font-weight: bold; transition: all 0.3s; }
+  .share-btn:hover { background: #cc0000; }
   #status { text-align: center; padding: 15px; font-size: 0.95em; color: #ff4444; }
   .upload-area { border: 2px dashed #333; border-radius: 12px; padding: 30px; text-align: center; cursor: pointer; transition: all 0.3s; margin-bottom: 15px; }
   .upload-area:hover { border-color: #ff2222; }
@@ -64,8 +66,6 @@
   .use-btn { flex: 1; padding: 10px; background: #ff2222; border: none; border-radius: 8px; color: white; cursor: pointer; font-size: 0.85em; font-weight: bold; }
   .use-btn:hover { background: #cc0000; }
   #promptStatus, #imgPromptStatus { text-align: center; padding: 15px; font-size: 0.95em; color: #ff4444; }
-
-  /* شات */
   .chat-box { background: #0d0d0d; border: 1px solid #2a2a2a; border-radius: 16px; height: 420px; overflow-y: auto; padding: 20px; margin-bottom: 15px; display: flex; flex-direction: column; gap: 12px; }
   .chat-box::-webkit-scrollbar { width: 4px; }
   .chat-box::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
@@ -82,7 +82,6 @@
   .chat-send-btn:disabled { background: #330000; cursor: not-allowed; }
   .chat-clear-btn { width: 100%; padding: 10px; background: transparent; border: 1px solid #333; border-radius: 10px; color: #666; font-size: 0.85em; cursor: pointer; margin-top: 8px; transition: all 0.3s; }
   .chat-clear-btn:hover { border-color: #ff2222; color: #ff2222; }
-
   footer { text-align: center; padding: 30px; color: #333; font-size: 0.85em; border-top: 1px solid #111; margin-top: 60px; }
   footer span { color: #ff2222; }
 </style>
@@ -102,10 +101,10 @@
 </div>
 
 <div class="tabs" id="tabs" style="display:none">
-  <div class="tab active" onclick="switchTab('generate')">🎨 توليد صورة</div>
+  <div class="tab active" onclick="switchTab('chat')">💬 شات AI</div>
   <div class="tab" onclick="switchTab('prompt')">✍️ برومبت من نص</div>
   <div class="tab" onclick="switchTab('imgprompt')">🖼️ برومبت من صورة</div>
-  <div class="tab" onclick="switchTab('chat')">💬 شات AI</div>
+  <div class="tab" onclick="switchTab('generate')">🎨 توليد صورة</div>
 </div>
 
 <div class="main">
@@ -119,32 +118,16 @@
 
   <div id="appContent" style="display:none">
 
-    <!-- توليد صورة -->
-    <div class="section active" id="generateSection">
-      <div class="input-card">
-        <label>✦ اكتب وصف الصورة</label>
-        <textarea id="prompt" placeholder="مثال: مدينة مستقبلية ليلاً، سيارات طائرة، أضواء نيون زرقاء..."></textarea>
-        <p class="hint">🌐 يدعم العربي والإنجليزي</p>
-        <div class="styles">
-          <button class="style-btn active" onclick="setStyle(this, '')">عادي</button>
-          <button class="style-btn" onclick="setStyle(this, ', realistic photography, 4k, highly detailed')">واقعي</button>
-          <button class="style-btn" onclick="setStyle(this, ', digital art, highly detailed, vibrant')">فن رقمي</button>
-          <button class="style-btn" onclick="setStyle(this, ', anime style, vibrant colors, detailed')">أنمي</button>
-          <button class="style-btn" onclick="setStyle(this, ', oil painting, artistic, masterpiece')">لوحة فنية</button>
-        </div>
+    <!-- شات AI -->
+    <div class="section active" id="chatSection">
+      <div class="chat-box" id="chatBox">
+        <div class="msg ai">مرحباً! أنا Mada AI 🤖 اسألني أي سؤال أو اطلب مني مساعدة في البرومبت والصور!</div>
       </div>
-      <button class="gen-btn" onclick="generateImage()" id="btn">🎨 ولّد الصورة الآن</button>
-      <div id="status"></div>
-      <div class="loading" id="loading">
-        <div class="spinner"></div>
-        <p id="loadingText">جاري توليد صورتك...</p>
+      <div class="chat-input-area">
+        <input type="text" class="chat-input" id="chatInput" placeholder="اكتب رسالتك هنا..." onkeydown="if(event.key==='Enter') sendChat()">
+        <button class="chat-send-btn" id="chatSendBtn" onclick="sendChat()">➤</button>
       </div>
-      <div class="result-card" id="resultCard">
-        <img id="resultImg" src="" alt="صورة مولدة">
-        <div class="result-actions">
-          <button class="download-btn" onclick="downloadImage()">⬇️ تحميل الصورة</button>
-        </div>
-      </div>
+      <button class="chat-clear-btn" onclick="clearChat()">🗑️ مسح المحادثة</button>
     </div>
 
     <!-- برومبت من نص -->
@@ -182,16 +165,33 @@
       <div id="imgPromptResults"></div>
     </div>
 
-    <!-- شات AI -->
-    <div class="section" id="chatSection">
-      <div class="chat-box" id="chatBox">
-        <div class="msg ai">مرحباً! أنا Mada AI 🤖 اسألني أي سؤال أو اطلب مني مساعدة في البرومبت والصور!</div>
+    <!-- توليد صورة -->
+    <div class="section" id="generateSection">
+      <div class="input-card">
+        <label>✦ اكتب وصف الصورة</label>
+        <textarea id="prompt" placeholder="مثال: مدينة مستقبلية ليلاً، سيارات طائرة، أضواء نيون زرقاء..."></textarea>
+        <p class="hint">🌐 يدعم العربي والإنجليزي</p>
+        <div class="styles">
+          <button class="style-btn active" onclick="setStyle(this, '')">عادي</button>
+          <button class="style-btn" onclick="setStyle(this, ', realistic photography, 4k, highly detailed')">واقعي</button>
+          <button class="style-btn" onclick="setStyle(this, ', digital art, highly detailed, vibrant')">فن رقمي</button>
+          <button class="style-btn" onclick="setStyle(this, ', anime style, vibrant colors, detailed')">أنمي</button>
+          <button class="style-btn" onclick="setStyle(this, ', oil painting, artistic, masterpiece')">لوحة فنية</button>
+        </div>
       </div>
-      <div class="chat-input-area">
-        <input type="text" class="chat-input" id="chatInput" placeholder="اكتب رسالتك هنا..." onkeydown="if(event.key==='Enter') sendChat()">
-        <button class="chat-send-btn" id="chatSendBtn" onclick="sendChat()">➤</button>
+      <button class="gen-btn" onclick="generateImage()" id="btn">🎨 ولّد الصورة الآن</button>
+      <div id="status"></div>
+      <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p id="loadingText">جاري توليد صورتك...</p>
       </div>
-      <button class="chat-clear-btn" onclick="clearChat()">🗑️ مسح المحادثة</button>
+      <div class="result-card" id="resultCard">
+        <img id="resultImg" src="" alt="صورة مولدة">
+        <div class="result-actions">
+          <button class="download-btn" onclick="downloadImage()">⬇️ تحميل الصورة</button>
+          <button class="share-btn" onclick="shareImage()">🔗 مشاركة</button>
+        </div>
+      </div>
     </div>
 
   </div>
@@ -228,7 +228,7 @@ let chatHistory = [];
 window.switchTab = function(tab) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  const tabs = ['generate', 'prompt', 'imgprompt', 'chat'];
+  const tabs = ['chat', 'prompt', 'imgprompt', 'generate'];
   document.querySelectorAll('.tab')[tabs.indexOf(tab)].classList.add('active');
   document.getElementById(tab + 'Section').classList.add('active');
 }
@@ -253,7 +253,7 @@ async function callPollinations(messages) {
       model: "openai",
       messages: messages,
       temperature: 0.8,
-      max_tokens: 1000
+      max_tokens: 1500
     })
   });
   if (!res.ok) throw new Error("خطأ في الاتصال: " + res.status);
@@ -288,11 +288,32 @@ window.setStyle = function(btn, style) {
   styleExtra = style;
 }
 
-window.downloadImage = function() {
-  const a = document.createElement("a");
-  a.href = currentImageUrl;
-  a.download = "mada-ai.png";
-  a.click();
+window.downloadImage = async function() {
+  if (!currentImageUrl) return;
+  try {
+    const res = await fetch(currentImageUrl);
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "mada-ai-" + Date.now() + ".png";
+    a.click();
+    URL.revokeObjectURL(url);
+  } catch(e) {
+    const a = document.createElement("a");
+    a.href = currentImageUrl;
+    a.download = "mada-ai.png";
+    a.click();
+  }
+}
+
+window.shareImage = function() {
+  if (navigator.share) {
+    navigator.share({ title: 'Mada AI', text: 'صورة مولدة بالذكاء الاصطناعي', url: currentImageUrl });
+  } else {
+    navigator.clipboard.writeText(currentImageUrl);
+    alert("تم نسخ رابط الصورة!");
+  }
 }
 
 function renderPrompts(prompts, containerId) {
@@ -333,8 +354,8 @@ window.generatePrompts = async function() {
   document.getElementById("promptResults").innerHTML = "";
   try {
     const text = await callPollinations([
-      { role: "system", content: "You are an expert AI image prompt engineer. Always respond with ONLY a valid JSON array, no extra text." },
-      { role: "user", content: 'Generate exactly 3 detailed professional AI image generation prompts in English based on: "' + idea + '". Include subject, environment, lighting, camera, quality keywords. Min 60 words each. Return ONLY: ["prompt1","prompt2","prompt3"]' }
+      { role: "system", content: "You are an expert AI image prompt engineer. Always respond with ONLY a valid JSON array, no extra text, no markdown." },
+      { role: "user", content: 'Generate exactly 3 extremely detailed professional AI image generation prompts in English based on: "' + idea + '". Each prompt must include: precise subject description, environment, lighting type and direction, camera angle and lens, color palette, mood, technical quality keywords (photorealistic, 8k, ultra-detailed, sharp focus). Minimum 100 words each. Return ONLY valid JSON: ["prompt1","prompt2","prompt3"]' }
     ]);
     let clean = text.replace(/```json|```/g, '').trim();
     const start = clean.indexOf('[');
@@ -344,7 +365,7 @@ window.generatePrompts = async function() {
     renderPrompts(prompts, 'promptResults');
     status.textContent = "✅ تم توليد 3 برومبت احترافية!";
   } catch(e) {
-    status.textContent = "⚠️ حصل خطأ: " + e.message;
+    status.textContent = "⚠️ حاول مرة أخرى!";
   }
   loading.style.display = "none";
   btn.disabled = false;
@@ -363,10 +384,10 @@ window.generatePromptFromImage = async function() {
   document.getElementById("imgPromptResults").innerHTML = "";
   try {
     const text = await callPollinations([
-      { role: "system", content: "You are an expert AI image prompt engineer. Always respond with ONLY a valid JSON array." },
+      { role: "system", content: "You are an expert AI image prompt engineer. Always respond with ONLY a valid JSON array, no extra text." },
       { role: "user", content: [
         { type: "image_url", image_url: { url: "data:" + uploadedMimeType + ";base64," + uploadedImageBase64 } },
-        { type: "text", text: 'Analyze this image and generate 3 professional image generation prompts. Include lighting, camera, quality keywords. Min 60 words each. Return ONLY: ["prompt1","prompt2","prompt3"]' }
+        { type: "text", text: 'Analyze this image in extreme detail and generate 3 professional image generation prompts. Include: every visual element, colors, textures, lighting, shadows, camera angle, composition, mood, technical quality keywords (photorealistic, 8k, ultra-detailed). Minimum 100 words each. Return ONLY valid JSON: ["prompt1","prompt2","prompt3"]' }
       ]}
     ]);
     let clean = text.replace(/```json|```/g, '').trim();
@@ -377,7 +398,7 @@ window.generatePromptFromImage = async function() {
     renderPrompts(prompts, 'imgPromptResults');
     status.textContent = "✅ تم تحليل الصورة وتوليد البرومبت!";
   } catch(e) {
-    status.textContent = "⚠️ حصل خطأ: " + e.message;
+    status.textContent = "⚠️ حاول مرة أخرى!";
   }
   loading.style.display = "none";
   btn.disabled = false;
