@@ -48,7 +48,7 @@
   .result-actions { padding: 16px 20px; border-top: 1px solid #1a1a1a; display: flex; gap: 10px; }
   .download-btn { flex: 1; padding: 12px; background: transparent; border: 1px solid #ff2222; border-radius: 10px; color: #ff2222; font-size: 0.95em; cursor: pointer; font-weight: bold; transition: all 0.3s; }
   .download-btn:hover { background: rgba(255,34,34,0.1); }
-  .share-btn { flex: 1; padding: 12px; background: #ff2222; border: none; border-radius: 10px; color: white; font-size: 0.95em; cursor: pointer; font-weight: bold; transition: all 0.3s; }
+  .share-btn { flex: 1; padding: 12px; background: #ff2222; border: none; border-radius: 10px; color: white; font-size: 0.95em; cursor: pointer; font-weight: bold; }
   .share-btn:hover { background: #cc0000; }
   #status { text-align: center; padding: 15px; font-size: 0.95em; color: #ff4444; }
   .upload-area { border: 2px dashed #333; border-radius: 12px; padding: 30px; text-align: center; cursor: pointer; transition: all 0.3s; margin-bottom: 15px; }
@@ -245,7 +245,7 @@ async function translateToEnglish(text) {
   } catch(e) { return text; }
 }
 
-async function callPollinations(messages) {
+async function callAI(messages) {
   const res = await fetch("https://text.pollinations.ai/openai", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -253,12 +253,49 @@ async function callPollinations(messages) {
       model: "openai",
       messages: messages,
       temperature: 0.8,
-      max_tokens: 1500
+      max_tokens: 2000
     })
   });
-  if (!res.ok) throw new Error("خطأ في الاتصال: " + res.status);
+  if (!res.ok) throw new Error("خطأ " + res.status);
   const data = await res.json();
   return data.choices[0].message.content;
+}
+
+function parsePrompts(text) {
+  let clean = text.trim().replace(/```json|```/g, '').trim();
+  const start = clean.indexOf('[');
+  const end = clean.lastIndexOf(']');
+  if (start === -1 || end === -1) throw new Error("مش لاقي JSON");
+  clean = clean.substring(start, end + 1);
+  const arr = JSON.parse(clean);
+  if (!Array.isArray(arr) || arr.length === 0) throw new Error("Array فاضي");
+  return arr;
+}
+
+function showPrompts(prompts, containerId) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = "";
+  prompts.forEach(function(p, i) {
+    const card = document.createElement("div");
+    card.className = "prompt-card";
+    card.innerHTML =
+      '<h3>✨ البرومبت ' + (i + 1) + '</h3>' +
+      '<div class="prompt-text">' + p + '</div>' +
+      '<div class="prompt-actions">' +
+      '<button class="copy-btn">📋 نسخ</button>' +
+      '<button class="use-btn">🎨 استخدم الآن</button>' +
+      '</div>';
+    card.querySelector('.copy-btn').onclick = function() {
+      navigator.clipboard.writeText(p);
+      this.textContent = "✅ تم النسخ!";
+      setTimeout(() => { this.textContent = "📋 نسخ"; }, 2000);
+    };
+    card.querySelector('.use-btn').onclick = function() {
+      switchTab('generate');
+      document.getElementById('prompt').value = p;
+    };
+    container.appendChild(card);
+  });
 }
 
 window.previewImage = function(event) {
@@ -316,31 +353,6 @@ window.shareImage = function() {
   }
 }
 
-function renderPrompts(prompts, containerId) {
-  const results = document.getElementById(containerId);
-  results.innerHTML = prompts.map((p, i) => `
-    <div class="prompt-card">
-      <h3>✨ البرومبت ${i + 1}</h3>
-      <div class="prompt-text" id="pt_${containerId}_${i}">${p}</div>
-      <div class="prompt-actions">
-        <button class="copy-btn" id="cp_${containerId}_${i}">📋 نسخ</button>
-        <button class="use-btn" id="us_${containerId}_${i}">🎨 استخدم الآن</button>
-      </div>
-    </div>
-  `).join('');
-  prompts.forEach((p, i) => {
-    document.getElementById("cp_" + containerId + "_" + i).addEventListener('click', function() {
-      navigator.clipboard.writeText(p);
-      this.textContent = "✅ تم النسخ!";
-      setTimeout(() => this.textContent = "📋 نسخ", 2000);
-    });
-    document.getElementById("us_" + containerId + "_" + i).addEventListener('click', function() {
-      switchTab('generate');
-      document.getElementById('prompt').value = p;
-    });
-  });
-}
-
 window.generatePrompts = async function() {
   const idea = document.getElementById("promptIdea").value.trim();
   if (!idea) { alert("من فضلك اكتب فكرتك!"); return; }
@@ -353,16 +365,12 @@ window.generatePrompts = async function() {
   loading.style.display = "block";
   document.getElementById("promptResults").innerHTML = "";
   try {
-    const text = await callPollinations([
-      { role: "system", content: "You are an expert AI image prompt engineer. Always respond with ONLY a valid JSON array, no extra text, no markdown." },
-      { role: "user", content: 'Generate exactly 3 extremely detailed professional AI image generation prompts in English based on: "' + idea + '". Each prompt must include: precise subject description, environment, lighting type and direction, camera angle and lens, color palette, mood, technical quality keywords (photorealistic, 8k, ultra-detailed, sharp focus). Minimum 100 words each. Return ONLY valid JSON: ["prompt1","prompt2","prompt3"]' }
+    const text = await callAI([
+      { role: "system", content: "You are an expert AI image prompt engineer. Respond with ONLY a valid JSON array of exactly 3 strings. No markdown, no explanation." },
+      { role: "user", content: 'Generate 3 extremely detailed professional AI image prompts in English for: "' + idea + '". Each prompt: subject details, environment, lighting, camera angle, colors, mood, quality keywords (photorealistic, 8k, ultra-detailed). Min 80 words each. Return ONLY: ["prompt1","prompt2","prompt3"]' }
     ]);
-    let clean = text.replace(/```json|```/g, '').trim();
-    const start = clean.indexOf('[');
-    const end = clean.lastIndexOf(']');
-    clean = clean.substring(start, end + 1);
-    const prompts = JSON.parse(clean);
-    renderPrompts(prompts, 'promptResults');
+    const prompts = parsePrompts(text);
+    showPrompts(prompts, 'promptResults');
     status.textContent = "✅ تم توليد 3 برومبت احترافية!";
   } catch(e) {
     status.textContent = "⚠️ حاول مرة أخرى!";
@@ -383,19 +391,15 @@ window.generatePromptFromImage = async function() {
   loading.style.display = "block";
   document.getElementById("imgPromptResults").innerHTML = "";
   try {
-    const text = await callPollinations([
-      { role: "system", content: "You are an expert AI image prompt engineer. Always respond with ONLY a valid JSON array, no extra text." },
+    const text = await callAI([
+      { role: "system", content: "You are an expert AI image prompt engineer. Respond with ONLY a valid JSON array of exactly 3 strings. No markdown, no explanation." },
       { role: "user", content: [
         { type: "image_url", image_url: { url: "data:" + uploadedMimeType + ";base64," + uploadedImageBase64 } },
-        { type: "text", text: 'Analyze this image in extreme detail and generate 3 professional image generation prompts. Include: every visual element, colors, textures, lighting, shadows, camera angle, composition, mood, technical quality keywords (photorealistic, 8k, ultra-detailed). Minimum 100 words each. Return ONLY valid JSON: ["prompt1","prompt2","prompt3"]' }
+        { type: "text", text: 'Analyze this image in extreme detail. Generate 3 professional image prompts. Include: every visual element, colors, textures, lighting, camera angle, mood, quality keywords. Min 80 words each. Return ONLY: ["prompt1","prompt2","prompt3"]' }
       ]}
     ]);
-    let clean = text.replace(/```json|```/g, '').trim();
-    const start = clean.indexOf('[');
-    const end = clean.lastIndexOf(']');
-    clean = clean.substring(start, end + 1);
-    const prompts = JSON.parse(clean);
-    renderPrompts(prompts, 'imgPromptResults');
+    const prompts = parsePrompts(text);
+    showPrompts(prompts, 'imgPromptResults');
     status.textContent = "✅ تم تحليل الصورة وتوليد البرومبت!";
   } catch(e) {
     status.textContent = "⚠️ حاول مرة أخرى!";
@@ -426,9 +430,9 @@ window.generateImage = async function() {
   }
   loadingText.textContent = "جاري تحسين البرومبت...";
   try {
-    const enhanced = await callPollinations([
-      { role: "system", content: "You are an image prompt engineer. Return ONLY the enhanced prompt, no extra text." },
-      { role: "user", content: 'Enhance this image prompt for AI generation. Add lighting, camera, style, quality details. Max 150 words. Return ONLY the prompt: "' + finalPrompt + '"' }
+    const enhanced = await callAI([
+      { role: "system", content: "You are an image prompt engineer. Return ONLY the enhanced prompt text, nothing else." },
+      { role: "user", content: 'Enhance this prompt for AI image generation. Add lighting, camera, style, quality details. Max 150 words. Return ONLY the prompt: "' + finalPrompt + '"' }
     ]);
     if (enhanced && enhanced.length > 10) finalPrompt = enhanced.trim();
   } catch(e) {}
@@ -480,7 +484,7 @@ window.sendChat = async function() {
       { role: "system", content: "أنت Mada AI، مساعد ذكاء اصطناعي متخصص في توليد الصور والبرومبت. تتحدث العربية والإنجليزية. كن مفيداً ودقيقاً وودوداً." },
       ...chatHistory
     ];
-    const reply = await callPollinations(messages);
+    const reply = await callAI(messages);
     typingDiv.className = "msg ai";
     typingDiv.textContent = reply;
     chatHistory.push({ role: "assistant", content: reply });
@@ -495,8 +499,7 @@ window.sendChat = async function() {
 
 window.clearChat = function() {
   chatHistory = [];
-  const box = document.getElementById("chatBox");
-  box.innerHTML = '<div class="msg ai">مرحباً! أنا Mada AI 🤖 اسألني أي سؤال أو اطلب مني مساعدة في البرومبت والصور!</div>';
+  document.getElementById("chatBox").innerHTML = '<div class="msg ai">مرحباً! أنا Mada AI 🤖 اسألني أي سؤال أو اطلب مني مساعدة في البرومبت والصور!</div>';
 }
 
 onAuthStateChanged(auth, (user) => {
