@@ -3,80 +3,70 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mada AI - AI Ads Studio</title>
+<title>Mada AI - مولد الصور</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { background: #000; color: #fff; font-family: 'Arial', sans-serif; min-height: 100vh; }
   header { border-bottom: 1px solid #1a1a1a; padding: 15px 25px; display: flex; align-items: center; justify-content: space-between; }
-  .logo { display: flex; flex-direction: column; }
-  .logo h1 { font-size: 1.6em; font-weight: 800; letter-spacing: 2px; color: #ff2222; text-shadow: 2px 2px 0px #555, 4px 4px 0px #333; }
-  .logo span { font-size: 0.7em; color: #888; letter-spacing: 3px; margin-top: -4px; }
+  .logo h1 { font-size: 1.6em; font-weight: 800; letter-spacing: 2px; color: #ff2222; }
   .user-area { display: flex; align-items: center; gap: 10px; }
   .user-area img { width: 35px; height: 35px; border-radius: 50%; border: 2px solid #ff2222; }
   .user-name { color: #aaa; font-size: 0.85em; }
   .login-btn { background: #ff2222; color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 0.9em; font-weight: bold; }
   .logout-btn { background: transparent; color: #ff2222; border: 1px solid #ff2222; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 0.85em; }
-  .hero { text-align: center; padding: 40px 20px 20px; background: radial-gradient(ellipse at top, #1a0000 0%, #000 60%); }
-  .hero h2 { font-size: 2em; margin-bottom: 10px; background: linear-gradient(90deg, #ff2222, #ff6666, #ff2222); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-  .hero p { color: #888; font-size: 0.95em; max-width: 500px; margin: 0 auto; line-height: 1.6; }
-  .tabs { display: flex; max-width: 700px; margin: 25px auto 0; padding: 0 20px; gap: 8px; flex-wrap: wrap; }
-  .tab { flex: 1; padding: 11px 5px; text-align: center; border-radius: 12px; border: 1px solid #333; background: #111; color: #888; cursor: pointer; font-size: 0.78em; transition: all 0.3s; min-width: 70px; }
+  .hero { text-align: center; padding: 50px 20px 30px; background: radial-gradient(ellipse at top, #1a0000 0%, #000 60%); }
+  .hero h2 { font-size: 2.2em; margin-bottom: 15px; background: linear-gradient(90deg, #ff2222, #ff6666, #ff2222); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .hero p { color: #888; font-size: 1em; max-width: 500px; margin: 0 auto; line-height: 1.6; }
+  .tabs { display: flex; max-width: 700px; margin: 30px auto 0; padding: 0 20px; gap: 8px; flex-wrap: wrap; }
+  .tab { flex: 1; padding: 11px 5px; text-align: center; border-radius: 12px; border: 1px solid #333; background: #111; color: #888; cursor: pointer; font-size: 0.82em; transition: all 0.3s; min-width: 80px; }
   .tab.active { border-color: #ff2222; color: #ff2222; background: rgba(255,34,34,0.1); }
-  .main { max-width: 700px; margin: 0 auto; padding: 25px 20px; }
+  .main { max-width: 700px; margin: 0 auto; padding: 30px 20px; }
   .section { display: none; }
   .section.active { display: block; }
   .login-prompt { text-align: center; padding: 60px 20px; }
   .login-prompt p { color: #888; margin-bottom: 20px; font-size: 1.1em; }
   .google-btn { display: flex; align-items: center; gap: 12px; background: white; color: #333; border: none; padding: 14px 24px; border-radius: 12px; cursor: pointer; font-size: 1em; font-weight: bold; margin: 0 auto; }
   .google-btn img { width: 24px; }
-  .input-card { background: #0d0d0d; border: 1px solid #2a2a2a; border-radius: 16px; padding: 24px; margin-bottom: 16px; }
-  .input-card label { display: block; color: #ff4444; font-size: 0.85em; margin-bottom: 8px; font-weight: bold; letter-spacing: 1px; }
-  input[type="text"], textarea, select {
-    width: 100%; padding: 13px 15px; border-radius: 10px; border: 1px solid #333;
-    background: #111; color: #fff; font-size: 0.95em; outline: none;
-    transition: border 0.3s; line-height: 1.6; font-family: Arial, sans-serif;
-  }
-  input[type="text"]:focus, textarea:focus, select:focus { border-color: #ff2222; }
-  input[type="text"]::placeholder, textarea::placeholder { color: #444; }
-  textarea { resize: none; height: 90px; }
-  select option { background: #111; }
-  .row { display: flex; gap: 12px; }
-  .row > div { flex: 1; }
-  .platforms { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 5px; }
-  .platform-btn { padding: 8px 14px; border-radius: 20px; border: 1px solid #333; background: #111; color: #888; font-size: 0.82em; cursor: pointer; transition: all 0.3s; }
-  .platform-btn.active { border-color: #ff2222; color: #ff2222; background: rgba(255,34,34,0.1); }
-  .lang-btns { display: flex; gap: 8px; margin-top: 5px; }
-  .lang-btn { padding: 8px 20px; border-radius: 20px; border: 1px solid #333; background: #111; color: #888; font-size: 0.85em; cursor: pointer; transition: all 0.3s; }
-  .lang-btn.active { border-color: #ff2222; color: #ff2222; background: rgba(255,34,34,0.1); }
+  .input-card { background: #0d0d0d; border: 1px solid #2a2a2a; border-radius: 16px; padding: 24px; margin-bottom: 20px; }
+  .input-card label { display: block; color: #ff4444; font-size: 0.9em; margin-bottom: 10px; font-weight: bold; letter-spacing: 1px; }
+  textarea { width: 100%; padding: 15px; border-radius: 10px; border: 1px solid #333; background: #111; color: #fff; font-size: 1em; resize: none; height: 110px; outline: none; transition: border 0.3s; line-height: 1.6; }
+  textarea:focus { border-color: #ff2222; }
+  textarea::placeholder { color: #444; }
+  .styles { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
+  .style-btn { padding: 8px 16px; border-radius: 20px; border: 1px solid #333; background: #111; color: #888; font-size: 0.85em; cursor: pointer; transition: all 0.3s; }
+  .style-btn:hover, .style-btn.active { border-color: #ff2222; color: #ff2222; background: rgba(255,34,34,0.1); }
+  .hint { color: #555; font-size: 0.8em; margin-top: 8px; }
   .gen-btn { width: 100%; padding: 18px; background: linear-gradient(135deg, #ff2222, #cc0000); border: none; border-radius: 12px; color: white; font-size: 1.1em; font-weight: bold; cursor: pointer; transition: all 0.3s; letter-spacing: 1px; box-shadow: 0 4px 20px rgba(255,0,0,0.3); margin-bottom: 10px; }
   .gen-btn:hover { transform: translateY(-2px); }
   .gen-btn:disabled { background: #330000; box-shadow: none; transform: none; cursor: not-allowed; }
-  .loading { display: none; text-align: center; padding: 30px; }
-  .spinner { width: 45px; height: 45px; border: 3px solid #1a1a1a; border-top: 3px solid #ff2222; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 15px; }
+  .loading { display: none; text-align: center; padding: 40px; }
+  .spinner { width: 50px; height: 50px; border: 3px solid #1a1a1a; border-top: 3px solid #ff2222; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .loading p { color: #888; font-size: 0.9em; }
-  #adStatus { text-align: center; padding: 10px; font-size: 0.95em; color: #ff4444; }
-
-  /* نتيجة الإعلان */
-  .ad-result { display: none; margin-top: 15px; }
-  .ad-img-wrap { position: relative; border-radius: 16px; overflow: hidden; margin-bottom: 15px; }
-  .ad-img-wrap img { width: 100%; display: block; border-radius: 16px; }
-  .ad-overlay { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.85)); padding: 20px; }
-  .ad-overlay .ad-title { font-size: 1.1em; font-weight: bold; color: #fff; margin-bottom: 6px; line-height: 1.4; }
-  .ad-overlay .ad-desc { font-size: 0.8em; color: #ddd; line-height: 1.5; }
-  .ad-overlay .ad-cta { display: inline-block; margin-top: 10px; background: #ff2222; color: white; padding: 8px 18px; border-radius: 20px; font-size: 0.82em; font-weight: bold; }
-  .ad-text-card { background: #0d0d0d; border: 1px solid #2a2a2a; border-radius: 16px; padding: 20px; margin-bottom: 12px; }
-  .ad-text-card h3 { color: #ff4444; font-size: 0.85em; margin-bottom: 12px; letter-spacing: 1px; }
-  .ad-text-item { background: #111; border: 1px solid #222; border-radius: 10px; padding: 14px; margin-bottom: 10px; }
-  .ad-text-item .label { color: #888; font-size: 0.75em; margin-bottom: 5px; }
-  .ad-text-item .value { color: #fff; font-size: 0.9em; line-height: 1.6; }
-  .ad-actions { display: flex; gap: 10px; margin-top: 5px; }
-  .copy-ad-btn { flex: 1; padding: 11px; background: transparent; border: 1px solid #333; border-radius: 10px; color: #888; cursor: pointer; font-size: 0.85em; transition: all 0.3s; }
-  .copy-ad-btn:hover { border-color: #ff2222; color: #ff2222; }
-  .download-ad-btn { flex: 1; padding: 11px; background: #ff2222; border: none; border-radius: 10px; color: white; cursor: pointer; font-size: 0.85em; font-weight: bold; }
-
-  /* شات */
-  .chat-box { background: #0d0d0d; border: 1px solid #2a2a2a; border-radius: 16px; height: 400px; overflow-y: auto; padding: 20px; margin-bottom: 15px; display: flex; flex-direction: column; gap: 12px; }
+  .loading p { color: #888; }
+  .result-card { display: none; background: #0d0d0d; border: 1px solid #2a2a2a; border-radius: 16px; overflow: hidden; margin-top: 20px; }
+  .result-card img { width: 100%; display: block; }
+  .result-actions { padding: 16px 20px; border-top: 1px solid #1a1a1a; display: flex; gap: 10px; }
+  .download-btn { flex: 1; padding: 12px; background: transparent; border: 1px solid #ff2222; border-radius: 10px; color: #ff2222; font-size: 0.95em; cursor: pointer; font-weight: bold; transition: all 0.3s; }
+  .download-btn:hover { background: rgba(255,34,34,0.1); }
+  .share-btn { flex: 1; padding: 12px; background: #ff2222; border: none; border-radius: 10px; color: white; font-size: 0.95em; cursor: pointer; font-weight: bold; }
+  .share-btn:hover { background: #cc0000; }
+  #status { text-align: center; padding: 15px; font-size: 0.95em; color: #ff4444; }
+  .upload-area { border: 2px dashed #333; border-radius: 12px; padding: 30px; text-align: center; cursor: pointer; transition: all 0.3s; margin-bottom: 15px; }
+  .upload-area:hover { border-color: #ff2222; }
+  .upload-area p { color: #555; margin-top: 10px; font-size: 0.9em; }
+  .upload-icon { font-size: 2.5em; }
+  #uploadedImg { width: 100%; border-radius: 12px; margin-bottom: 15px; display: none; border: 1px solid #333; }
+  #fileInput { display: none; }
+  .prompt-card { background: #0d0d0d; border: 1px solid #2a2a2a; border-radius: 16px; padding: 20px; margin-bottom: 15px; }
+  .prompt-card h3 { color: #ff4444; font-size: 0.9em; margin-bottom: 10px; }
+  .prompt-text { color: #ddd; font-size: 0.85em; line-height: 1.8; background: #111; padding: 12px; border-radius: 8px; border: 1px solid #222; direction: ltr; text-align: left; }
+  .prompt-actions { display: flex; gap: 10px; margin-top: 12px; }
+  .copy-btn { flex: 1; padding: 10px; background: transparent; border: 1px solid #333; border-radius: 8px; color: #888; cursor: pointer; font-size: 0.85em; transition: all 0.3s; }
+  .copy-btn:hover { border-color: #ff2222; color: #ff2222; }
+  .use-btn { flex: 1; padding: 10px; background: #ff2222; border: none; border-radius: 8px; color: white; cursor: pointer; font-size: 0.85em; font-weight: bold; }
+  .use-btn:hover { background: #cc0000; }
+  #promptStatus, #imgPromptStatus { text-align: center; padding: 15px; font-size: 0.95em; color: #ff4444; }
+  .chat-box { background: #0d0d0d; border: 1px solid #2a2a2a; border-radius: 16px; height: 420px; overflow-y: auto; padding: 20px; margin-bottom: 15px; display: flex; flex-direction: column; gap: 12px; }
   .chat-box::-webkit-scrollbar { width: 4px; }
   .chat-box::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
   .msg { max-width: 80%; padding: 12px 16px; border-radius: 16px; font-size: 0.9em; line-height: 1.6; }
@@ -84,14 +74,14 @@
   .msg.ai { background: #1a1a1a; color: #ddd; align-self: flex-end; border-bottom-left-radius: 4px; border: 1px solid #2a2a2a; }
   .msg.ai.typing { color: #888; font-style: italic; }
   .chat-input-area { display: flex; gap: 10px; }
-  .chat-input { flex: 1; padding: 13px; border-radius: 12px; border: 1px solid #333; background: #111; color: #fff; font-size: 0.95em; outline: none; transition: border 0.3s; }
+  .chat-input { flex: 1; padding: 14px; border-radius: 12px; border: 1px solid #333; background: #111; color: #fff; font-size: 0.95em; outline: none; transition: border 0.3s; }
   .chat-input:focus { border-color: #ff2222; }
   .chat-input::placeholder { color: #444; }
-  .chat-send-btn { padding: 13px 18px; background: #ff2222; border: none; border-radius: 12px; color: white; cursor: pointer; font-size: 1.1em; }
+  .chat-send-btn { padding: 14px 20px; background: #ff2222; border: none; border-radius: 12px; color: white; cursor: pointer; font-size: 1.1em; transition: all 0.3s; }
+  .chat-send-btn:hover { background: #cc0000; }
   .chat-send-btn:disabled { background: #330000; cursor: not-allowed; }
   .chat-clear-btn { width: 100%; padding: 10px; background: transparent; border: 1px solid #333; border-radius: 10px; color: #666; font-size: 0.85em; cursor: pointer; margin-top: 8px; transition: all 0.3s; }
   .chat-clear-btn:hover { border-color: #ff2222; color: #ff2222; }
-
   footer { text-align: center; padding: 30px; color: #333; font-size: 0.85em; border-top: 1px solid #111; margin-top: 60px; }
   footer span { color: #ff2222; }
 </style>
@@ -99,28 +89,27 @@
 <body>
 
 <header>
-  <div class="logo">
-    <h1>MADA AI</h1>
-    <span>AI ADS STUDIO</span>
-  </div>
+  <div class="logo"><h1>MADA AI</h1></div>
   <div class="user-area" id="userArea">
     <button class="login-btn" onclick="loginWithGoogle()">دخول بـ Google</button>
   </div>
 </header>
 
 <div class="hero">
-  <h2>اصنع إعلانك الاحترافي بالذكاء الاصطناعي</h2>
-  <p>اكتب اسم منتجك ووصفه وسيقوم الذكاء الاصطناعي بإنشاء إعلان احترافي جاهز للنشر</p>
+  <h2>ولّد صورك بالذكاء الاصطناعي</h2>
+  <p>اكتب أي وصف بالعربي أو الإنجليزي وسيقوم الذكاء الاصطناعي بتحويله لصورة احترافية</p>
 </div>
 
 <div class="tabs" id="tabs" style="display:none">
-  <div class="tab active" onclick="switchTab('ads')">📢 إنشاء إعلان</div>
-  <div class="tab" onclick="switchTab('chat')">💬 مستشار التسويق</div>
+  <div class="tab active" onclick="switchTab('chat')">💬 شات AI</div>
+  <div class="tab" onclick="switchTab('prompt')">✍️ برومبت من نص</div>
+  <div class="tab" onclick="switchTab('imgprompt')">🖼️ برومبت من صورة</div>
+  <div class="tab" onclick="switchTab('generate')">🎨 توليد صورة</div>
 </div>
 
 <div class="main">
   <div id="loginPrompt" class="login-prompt">
-    <p>سجّل دخولك عشان تبدأ تصنع إعلاناتك!</p>
+    <p>سجّل دخولك عشان تبدأ تولّد صور!</p>
     <button class="google-btn" onclick="loginWithGoogle()">
       <img src="https://www.google.com/favicon.ico" alt="Google">
       تسجيل الدخول بـ Google
@@ -129,110 +118,87 @@
 
   <div id="appContent" style="display:none">
 
-    <!-- قسم الإعلان -->
-    <div class="section active" id="adsSection">
-
-      <div class="input-card">
-        <label>🏷️ اسم المنتج أو الخدمة</label>
-        <input type="text" id="productName" placeholder="مثال: عطر الورد الذهبي، مطعم سمك البحر...">
-      </div>
-
-      <div class="input-card">
-        <label>📝 وصف المنتج</label>
-        <textarea id="productDesc" placeholder="اكتب تفاصيل المنتج، مميزاته، السعر، العروض... كل ما تعرفه عنه"></textarea>
-      </div>
-
-      <div class="input-card">
-        <label>📱 المنصة</label>
-        <div class="platforms">
-          <button class="platform-btn active" onclick="setPlatform(this, 'Instagram')">📸 Instagram</button>
-          <button class="platform-btn" onclick="setPlatform(this, 'Facebook')">👥 Facebook</button>
-          <button class="platform-btn" onclick="setPlatform(this, 'TikTok')">🎵 TikTok</button>
-          <button class="platform-btn" onclick="setPlatform(this, 'Twitter')">🐦 Twitter</button>
-          <button class="platform-btn" onclick="setPlatform(this, 'Snapchat')">👻 Snapchat</button>
-        </div>
-      </div>
-
-      <div class="input-card">
-        <label>🎯 نوع الإعلان</label>
-        <select id="adType">
-          <option value="product">إعلان منتج</option>
-          <option value="offer">عرض وخصم</option>
-          <option value="brand">تعريف بالعلامة التجارية</option>
-          <option value="event">حدث أو مناسبة</option>
-          <option value="service">خدمة</option>
-        </select>
-      </div>
-
-      <div class="input-card">
-        <label>🌐 لغة الإعلان</label>
-        <div class="lang-btns">
-          <button class="lang-btn active" onclick="setLang(this, 'ar')">🇸🇦 عربي</button>
-          <button class="lang-btn" onclick="setLang(this, 'en')">🇺🇸 English</button>
-          <button class="lang-btn" onclick="setLang(this, 'both')">🌍 الاثنين</button>
-        </div>
-      </div>
-
-      <button class="gen-btn" onclick="generateAd()" id="adBtn">🚀 اصنع الإعلان الآن</button>
-      <div id="adStatus"></div>
-
-      <div class="loading" id="adLoading">
-        <div class="spinner"></div>
-        <p id="adLoadingText">جاري إنشاء إعلانك...</p>
-      </div>
-
-      <div class="ad-result" id="adResult">
-        <div class="ad-img-wrap">
-          <img id="adImg" src="" alt="صورة الإعلان">
-          <div class="ad-overlay">
-            <div class="ad-title" id="adOverlayTitle"></div>
-            <div class="ad-desc" id="adOverlayDesc"></div>
-            <div class="ad-cta" id="adOverlayCta"></div>
-          </div>
-        </div>
-        <div class="ad-text-card">
-          <h3>✦ نصوص الإعلان الجاهزة للنشر</h3>
-          <div class="ad-text-item">
-            <div class="label">📌 العنوان الرئيسي</div>
-            <div class="value" id="adTitle"></div>
-          </div>
-          <div class="ad-text-item">
-            <div class="label">📄 نص الإعلان</div>
-            <div class="value" id="adBody"></div>
-          </div>
-          <div class="ad-text-item">
-            <div class="label">🔗 الهاشتاقات</div>
-            <div class="value" id="adHashtags"></div>
-          </div>
-          <div class="ad-text-item">
-            <div class="label">📣 Call to Action</div>
-            <div class="value" id="adCta"></div>
-          </div>
-          <div class="ad-actions">
-            <button class="copy-ad-btn" onclick="copyAllAd()">📋 نسخ كل النصوص</button>
-            <button class="download-ad-btn" onclick="downloadAdImg()">⬇️ تحميل الصورة</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- شات مستشار التسويق -->
-    <div class="section" id="chatSection">
+    <!-- شات AI -->
+    <div class="section active" id="chatSection">
       <div class="chat-box" id="chatBox">
-        <div class="msg ai">مرحباً! أنا مستشار التسويق الخاص بك 🎯 اسألني عن أي استراتيجية تسويقية، أفكار إعلانات، أو كيف تحسن مبيعاتك!</div>
+        <div class="msg ai">مرحباً! أنا Mada AI 🤖 اسألني أي سؤال أو اطلب مني مساعدة في البرومبت والصور!</div>
       </div>
       <div class="chat-input-area">
-        <input type="text" class="chat-input" id="chatInput" placeholder="اسألني عن التسويق والإعلانات..." onkeydown="if(event.key==='Enter') sendChat()">
+        <input type="text" class="chat-input" id="chatInput" placeholder="اكتب رسالتك هنا..." onkeydown="if(event.key==='Enter') sendChat()">
         <button class="chat-send-btn" id="chatSendBtn" onclick="sendChat()">➤</button>
       </div>
       <button class="chat-clear-btn" onclick="clearChat()">🗑️ مسح المحادثة</button>
+    </div>
+
+    <!-- برومبت من نص -->
+    <div class="section" id="promptSection">
+      <div class="input-card">
+        <label>✦ اكتب فكرتك بكلمات بسيطة</label>
+        <textarea id="promptIdea" placeholder="مثال: قطة بيضاء جالسة على نافذة وقت المطر..."></textarea>
+      </div>
+      <button class="gen-btn" onclick="generatePrompts()" id="promptBtn">✨ ولّد 3 برومبت احترافية</button>
+      <div id="promptStatus"></div>
+      <div class="loading" id="promptLoading">
+        <div class="spinner"></div>
+        <p>جاري توليد البرومبت...</p>
+      </div>
+      <div id="promptResults"></div>
+    </div>
+
+    <!-- برومبت من صورة -->
+    <div class="section" id="imgpromptSection">
+      <div class="input-card">
+        <label>✦ ارفع صورة وسيتم تحليلها</label>
+        <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+          <div class="upload-icon">🖼️</div>
+          <p>اضغط هنا لرفع الصورة</p>
+        </div>
+        <input type="file" id="fileInput" accept="image/*" onchange="previewImage(event)">
+        <img id="uploadedImg" src="" alt="صورة مرفوعة">
+      </div>
+      <button class="gen-btn" onclick="generatePromptFromImage()" id="imgPromptBtn">🔍 حلل الصورة وولّد برومبت</button>
+      <div id="imgPromptStatus"></div>
+      <div class="loading" id="imgPromptLoading">
+        <div class="spinner"></div>
+        <p>جاري تحليل الصورة...</p>
+      </div>
+      <div id="imgPromptResults"></div>
+    </div>
+
+    <!-- توليد صورة -->
+    <div class="section" id="generateSection">
+      <div class="input-card">
+        <label>✦ اكتب وصف الصورة</label>
+        <textarea id="prompt" placeholder="مثال: مدينة مستقبلية ليلاً، سيارات طائرة، أضواء نيون زرقاء..."></textarea>
+        <p class="hint">🌐 يدعم العربي والإنجليزي</p>
+        <div class="styles">
+          <button class="style-btn active" onclick="setStyle(this, '')">عادي</button>
+          <button class="style-btn" onclick="setStyle(this, ', realistic photography, 4k, highly detailed')">واقعي</button>
+          <button class="style-btn" onclick="setStyle(this, ', digital art, highly detailed, vibrant')">فن رقمي</button>
+          <button class="style-btn" onclick="setStyle(this, ', anime style, vibrant colors, detailed')">أنمي</button>
+          <button class="style-btn" onclick="setStyle(this, ', oil painting, artistic, masterpiece')">لوحة فنية</button>
+        </div>
+      </div>
+      <button class="gen-btn" onclick="generateImage()" id="btn">🎨 ولّد الصورة الآن</button>
+      <div id="status"></div>
+      <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p id="loadingText">جاري توليد صورتك...</p>
+      </div>
+      <div class="result-card" id="resultCard">
+        <img id="resultImg" src="" alt="صورة مولدة">
+        <div class="result-actions">
+          <button class="download-btn" onclick="downloadImage()">⬇️ تحميل الصورة</button>
+          <button class="share-btn" onclick="shareImage()">🔗 مشاركة</button>
+        </div>
+      </div>
     </div>
 
   </div>
 </div>
 
 <footer>
-  صُنع بـ <span>♥</span> بواسطة <span>Mada AI</span> — AI Ads Studio
+  صُنع بـ <span>♥</span> بواسطة <span>Mada AI</span> — مدعوم بالذكاء الاصطناعي
 </footer>
 
 <script type="module">
@@ -253,30 +219,97 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-let selectedPlatform = 'Instagram';
-let selectedLang = 'ar';
+let styleExtra = '';
+let currentImageUrl = '';
+let uploadedImageBase64 = '';
+let uploadedMimeType = 'image/jpeg';
 let chatHistory = [];
-let currentAdImageUrl = '';
-let currentAdData = {};
 
 window.switchTab = function(tab) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  const tabs = ['ads', 'chat'];
+  const tabs = ['chat', 'prompt', 'imgprompt', 'generate'];
   document.querySelectorAll('.tab')[tabs.indexOf(tab)].classList.add('active');
   document.getElementById(tab + 'Section').classList.add('active');
 }
 
-window.setPlatform = function(btn, platform) {
-  document.querySelectorAll('.platform-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  selectedPlatform = platform;
+function isArabic(text) {
+  return /[\u0600-\u06FF]/.test(text);
 }
 
-window.setLang = function(btn, lang) {
-  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  selectedLang = lang;
+async function translateToEnglish(text) {
+  try {
+    const res = await fetch("https://api.mymemory.translated.net/get?q=" + encodeURIComponent(text) + "&langpair=ar|en");
+    const data = await res.json();
+    return data.responseData.translatedText || text;
+  } catch(e) { return text; }
+}
+
+async function callAI(messages) {
+  const res = await fetch("https://text.pollinations.ai/openai", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "openai",
+      messages: messages,
+      temperature: 0.8,
+      max_tokens: 2000
+    })
+  });
+  if (!res.ok) throw new Error("خطأ " + res.status);
+  const data = await res.json();
+  return data.choices[0].message.content;
+}
+
+function parsePrompts(text) {
+  let clean = text.trim().replace(/```json|```/g, '').trim();
+  const start = clean.indexOf('[');
+  const end = clean.lastIndexOf(']');
+  if (start === -1 || end === -1) throw new Error("مش لاقي JSON");
+  clean = clean.substring(start, end + 1);
+  const arr = JSON.parse(clean);
+  if (!Array.isArray(arr) || arr.length === 0) throw new Error("Array فاضي");
+  return arr;
+}
+
+function showPrompts(prompts, containerId) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = "";
+  prompts.forEach(function(p, i) {
+    const card = document.createElement("div");
+    card.className = "prompt-card";
+    card.innerHTML =
+      '<h3>✨ البرومبت ' + (i + 1) + '</h3>' +
+      '<div class="prompt-text">' + p + '</div>' +
+      '<div class="prompt-actions">' +
+      '<button class="copy-btn">📋 نسخ</button>' +
+      '<button class="use-btn">🎨 استخدم الآن</button>' +
+      '</div>';
+    card.querySelector('.copy-btn').onclick = function() {
+      navigator.clipboard.writeText(p);
+      this.textContent = "✅ تم النسخ!";
+      setTimeout(() => { this.textContent = "📋 نسخ"; }, 2000);
+    };
+    card.querySelector('.use-btn').onclick = function() {
+      switchTab('generate');
+      document.getElementById('prompt').value = p;
+    };
+    container.appendChild(card);
+  });
+}
+
+window.previewImage = function(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  uploadedMimeType = file.type || 'image/jpeg';
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = document.getElementById('uploadedImg');
+    img.src = e.target.result;
+    img.style.display = 'block';
+    uploadedImageBase64 = e.target.result.split(',')[1];
+  };
+  reader.readAsDataURL(file);
 }
 
 window.loginWithGoogle = async function() {
@@ -286,145 +319,144 @@ window.loginWithGoogle = async function() {
 
 window.logoutUser = async function() { await signOut(auth); }
 
-async function callPollinations(messages) {
-  const res = await fetch("https://text.pollinations.ai/openai", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: "openai",
-      messages: messages,
-      temperature: 0.85,
-      max_tokens: 1500
-    })
-  });
-  if (!res.ok) throw new Error("خطأ: " + res.status);
-  const data = await res.json();
-  return data.choices[0].message.content;
+window.setStyle = function(btn, style) {
+  document.querySelectorAll('.style-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  styleExtra = style;
 }
 
-window.generateAd = async function() {
-  const productName = document.getElementById("productName").value.trim();
-  const productDesc = document.getElementById("productDesc").value.trim();
-  const adType = document.getElementById("adType").value;
-
-  if (!productName) { alert("من فضلك اكتب اسم المنتج!"); return; }
-  if (!productDesc) { alert("من فضلك اكتب وصف المنتج!"); return; }
-
-  const btn = document.getElementById("adBtn");
-  const status = document.getElementById("adStatus");
-  const loading = document.getElementById("adLoading");
-  const loadingText = document.getElementById("adLoadingText");
-  const adResult = document.getElementById("adResult");
-
-  btn.disabled = true;
-  btn.textContent = "⏳ جاري الإنشاء...";
-  status.textContent = "";
-  loading.style.display = "block";
-  adResult.style.display = "none";
-
-  const langInstruction = selectedLang === 'ar' ? 'Write everything in Arabic only.' :
-    selectedLang === 'en' ? 'Write everything in English only.' :
-    'Write in both Arabic and English.';
-
-  const adTypeMap = {
-    product: 'product advertisement',
-    offer: 'special offer and discount',
-    brand: 'brand awareness',
-    event: 'event announcement',
-    service: 'service advertisement'
-  };
-
+window.downloadImage = async function() {
+  if (!currentImageUrl) return;
   try {
-    loadingText.textContent = "جاري كتابة نصوص الإعلان...";
-
-    const textResult = await callPollinations([
-      {
-        role: "system",
-        content: `You are an expert social media advertising copywriter. You create highly converting ads. ${langInstruction} Always respond with ONLY valid JSON, no extra text.`
-      },
-      {
-        role: "user",
-        content: `Create a professional ${adTypeMap[adType]} for ${selectedPlatform} for this product:
-Product Name: ${productName}
-Description: ${productDesc}
-
-Return ONLY this JSON:
-{
-  "title": "catchy main headline (max 10 words)",
-  "body": "compelling ad body text (2-3 sentences)",
-  "hashtags": "5-7 relevant hashtags",
-  "cta": "call to action button text (max 5 words)",
-  "imagePrompt": "detailed English image generation prompt for this product ad, professional photography style, commercial look"
-}`
-      }
-    ]);
-
-    let clean = textResult.replace(/```json|```/g, '').trim();
-    const start = clean.indexOf('{');
-    const end = clean.lastIndexOf('}');
-    clean = clean.substring(start, end + 1);
-    const adData = JSON.parse(clean);
-    currentAdData = adData;
-
-    document.getElementById("adTitle").textContent = adData.title;
-    document.getElementById("adBody").textContent = adData.body;
-    document.getElementById("adHashtags").textContent = adData.hashtags;
-    document.getElementById("adCta").textContent = adData.cta;
-    document.getElementById("adOverlayTitle").textContent = adData.title;
-    document.getElementById("adOverlayDesc").textContent = adData.body.substring(0, 80) + "...";
-    document.getElementById("adOverlayCta").textContent = adData.cta;
-
-    loadingText.textContent = "جاري توليد صورة الإعلان...";
-
-    const seed = Math.floor(Math.random() * 1000000);
-    const imgPrompt = encodeURIComponent(adData.imagePrompt + ", professional commercial photography, high quality, 8k, sharp focus, studio lighting, advertisement");
-    const imageUrl = "https://image.pollinations.ai/prompt/" + imgPrompt + "?seed=" + seed + "&width=1024&height=1024&model=flux-realism&nologo=true&enhance=true";
-
-    const img = new Image();
-    img.onload = function() {
-      currentAdImageUrl = imageUrl;
-      document.getElementById("adImg").src = imageUrl;
-      loading.style.display = "none";
-      adResult.style.display = "block";
-      status.textContent = "✅ تم إنشاء إعلانك بنجاح!";
-      btn.disabled = false;
-      btn.textContent = "🚀 اصنع الإعلان الآن";
-    };
-    img.onerror = function() {
-      loading.style.display = "none";
-      adResult.style.display = "block";
-      status.textContent = "✅ تم إنشاء نصوص الإعلان! (الصورة لم تتحمل، حاول مرة أخرى)";
-      btn.disabled = false;
-      btn.textContent = "🚀 اصنع الإعلان الآن";
-    };
-    img.src = imageUrl;
-
+    const res = await fetch(currentImageUrl);
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "mada-ai-" + Date.now() + ".png";
+    a.click();
+    URL.revokeObjectURL(url);
   } catch(e) {
-    loading.style.display = "none";
-    status.textContent = "⚠️ حصل خطأ: " + e.message;
-    btn.disabled = false;
-    btn.textContent = "🚀 اصنع الإعلان الآن";
+    const a = document.createElement("a");
+    a.href = currentImageUrl;
+    a.download = "mada-ai.png";
+    a.click();
   }
 }
 
-window.copyAllAd = function() {
-  const text =
-    "العنوان: " + document.getElementById("adTitle").textContent + "\n\n" +
-    "النص: " + document.getElementById("adBody").textContent + "\n\n" +
-    "الهاشتاقات: " + document.getElementById("adHashtags").textContent + "\n\n" +
-    "Call to Action: " + document.getElementById("adCta").textContent;
-  navigator.clipboard.writeText(text);
-  const btn = document.querySelector('.copy-ad-btn');
-  btn.textContent = "✅ تم النسخ!";
-  setTimeout(() => btn.textContent = "📋 نسخ كل النصوص", 2000);
+window.shareImage = function() {
+  if (navigator.share) {
+    navigator.share({ title: 'Mada AI', text: 'صورة مولدة بالذكاء الاصطناعي', url: currentImageUrl });
+  } else {
+    navigator.clipboard.writeText(currentImageUrl);
+    alert("تم نسخ رابط الصورة!");
+  }
 }
 
-window.downloadAdImg = function() {
-  if (!currentAdImageUrl) return;
-  const a = document.createElement("a");
-  a.href = currentAdImageUrl;
-  a.download = "mada-ad.png";
-  a.click();
+window.generatePrompts = async function() {
+  const idea = document.getElementById("promptIdea").value.trim();
+  if (!idea) { alert("من فضلك اكتب فكرتك!"); return; }
+  const btn = document.getElementById("promptBtn");
+  const status = document.getElementById("promptStatus");
+  const loading = document.getElementById("promptLoading");
+  btn.disabled = true;
+  btn.textContent = "⏳ جاري التوليد...";
+  status.textContent = "";
+  loading.style.display = "block";
+  document.getElementById("promptResults").innerHTML = "";
+  try {
+    const text = await callAI([
+      { role: "system", content: "You are an expert AI image prompt engineer. Respond with ONLY a valid JSON array of exactly 3 strings. No markdown, no explanation." },
+      { role: "user", content: 'Generate 3 extremely detailed professional AI image prompts in English for: "' + idea + '". Each prompt: subject details, environment, lighting, camera angle, colors, mood, quality keywords (photorealistic, 8k, ultra-detailed). Min 80 words each. Return ONLY: ["prompt1","prompt2","prompt3"]' }
+    ]);
+    const prompts = parsePrompts(text);
+    showPrompts(prompts, 'promptResults');
+    status.textContent = "✅ تم توليد 3 برومبت احترافية!";
+  } catch(e) {
+    status.textContent = "⚠️ حاول مرة أخرى!";
+  }
+  loading.style.display = "none";
+  btn.disabled = false;
+  btn.textContent = "✨ ولّد 3 برومبت احترافية";
+}
+
+window.generatePromptFromImage = async function() {
+  if (!uploadedImageBase64) { alert("من فضلك ارفع صورة أول!"); return; }
+  const btn = document.getElementById("imgPromptBtn");
+  const status = document.getElementById("imgPromptStatus");
+  const loading = document.getElementById("imgPromptLoading");
+  btn.disabled = true;
+  btn.textContent = "⏳ جاري التحليل...";
+  status.textContent = "";
+  loading.style.display = "block";
+  document.getElementById("imgPromptResults").innerHTML = "";
+  try {
+    const text = await callAI([
+      { role: "system", content: "You are an expert AI image prompt engineer. Respond with ONLY a valid JSON array of exactly 3 strings. No markdown, no explanation." },
+      { role: "user", content: [
+        { type: "image_url", image_url: { url: "data:" + uploadedMimeType + ";base64," + uploadedImageBase64 } },
+        { type: "text", text: 'Analyze this image in extreme detail. Generate 3 professional image prompts. Include: every visual element, colors, textures, lighting, camera angle, mood, quality keywords. Min 80 words each. Return ONLY: ["prompt1","prompt2","prompt3"]' }
+      ]}
+    ]);
+    const prompts = parsePrompts(text);
+    showPrompts(prompts, 'imgPromptResults');
+    status.textContent = "✅ تم تحليل الصورة وتوليد البرومبت!";
+  } catch(e) {
+    status.textContent = "⚠️ حاول مرة أخرى!";
+  }
+  loading.style.display = "none";
+  btn.disabled = false;
+  btn.textContent = "🔍 حلل الصورة وولّد برومبت";
+}
+
+window.generateImage = async function() {
+  const promptText = document.getElementById("prompt").value.trim();
+  if (!promptText) { alert("من فضلك اكتب وصف الصورة!"); return; }
+  const btn = document.getElementById("btn");
+  const status = document.getElementById("status");
+  const loading = document.getElementById("loading");
+  const loadingText = document.getElementById("loadingText");
+  const resultCard = document.getElementById("resultCard");
+  const resultImg = document.getElementById("resultImg");
+  btn.disabled = true;
+  btn.textContent = "⏳ جاري التوليد...";
+  status.textContent = "";
+  loading.style.display = "block";
+  resultCard.style.display = "none";
+  let finalPrompt = promptText;
+  if (isArabic(promptText)) {
+    loadingText.textContent = "جاري ترجمة النص...";
+    finalPrompt = await translateToEnglish(promptText);
+  }
+  loadingText.textContent = "جاري تحسين البرومبت...";
+  try {
+    const enhanced = await callAI([
+      { role: "system", content: "You are an image prompt engineer. Return ONLY the enhanced prompt text, nothing else." },
+      { role: "user", content: 'Enhance this prompt for AI image generation. Add lighting, camera, style, quality details. Max 150 words. Return ONLY the prompt: "' + finalPrompt + '"' }
+    ]);
+    if (enhanced && enhanced.length > 10) finalPrompt = enhanced.trim();
+  } catch(e) {}
+  loadingText.textContent = "جاري توليد صورتك...";
+  const seed = Math.floor(Math.random() * 1000000);
+  const fullPrompt = encodeURIComponent(finalPrompt + styleExtra);
+  const imageUrl = "https://image.pollinations.ai/prompt/" + fullPrompt + "?seed=" + seed + "&width=1024&height=1024&model=flux-realism&nologo=true&enhance=true";
+  const img = new Image();
+  img.onload = function() {
+    currentImageUrl = imageUrl;
+    resultImg.src = imageUrl;
+    resultCard.style.display = "block";
+    status.textContent = "✅ تم توليد الصورة بنجاح!";
+    loading.style.display = "none";
+    btn.disabled = false;
+    btn.textContent = "🎨 ولّد الصورة الآن";
+  };
+  img.onerror = function() {
+    status.textContent = "⚠️ حاول مرة أخرى!";
+    loading.style.display = "none";
+    btn.disabled = false;
+    btn.textContent = "🎨 ولّد الصورة الآن";
+  };
+  img.src = imageUrl;
 }
 
 function addMsg(text, type) {
@@ -449,13 +481,10 @@ window.sendChat = async function() {
   const typingDiv = addMsg("جاري الكتابة...", "ai typing");
   try {
     const messages = [
-      {
-        role: "system",
-        content: "أنت مستشار تسويق ذكي ومتخصص في السوشيال ميديا والإعلانات الرقمية. تتحدث العربية والإنجليزية. تقدم نصائح احترافية ودقيقة في التسويق وزيادة المبيعات وبناء العلامة التجارية. كن واضحاً ومفيداً وعملياً."
-      },
+      { role: "system", content: "أنت Mada AI، مساعد ذكاء اصطناعي متخصص في توليد الصور والبرومبت. تتحدث العربية والإنجليزية. كن مفيداً ودقيقاً وودوداً." },
       ...chatHistory
     ];
-    const reply = await callPollinations(messages);
+    const reply = await callAI(messages);
     typingDiv.className = "msg ai";
     typingDiv.textContent = reply;
     chatHistory.push({ role: "assistant", content: reply });
@@ -470,8 +499,7 @@ window.sendChat = async function() {
 
 window.clearChat = function() {
   chatHistory = [];
-  document.getElementById("chatBox").innerHTML =
-    '<div class="msg ai">مرحباً! أنا مستشار التسويق الخاص بك 🎯 اسألني عن أي استراتيجية تسويقية، أفكار إعلانات، أو كيف تحسن مبيعاتك!</div>';
+  document.getElementById("chatBox").innerHTML = '<div class="msg ai">مرحباً! أنا Mada AI 🤖 اسألني أي سؤال أو اطلب مني مساعدة في البرومبت والصور!</div>';
 }
 
 onAuthStateChanged(auth, (user) => {
